@@ -17,14 +17,14 @@ export async function onRequest(context) {
 
   if (!appId || isNaN(appId)) {
     return new Response(
-      JSON.stringify({ error: 'App ID invalido' }),
+      JSON.stringify({ error: 'App ID inválido' }),
       { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
     );
   }
 
-  let steamUrl = 'https://store.steampowered.com/api/appdetails?appids=' + appId + '&l=spanish';
+  let steamUrl = `https://store.steampowered.com/api/appdetails?appids=${appId}&l=spanish`;
   if (filters) {
-    steamUrl += '&filters=' + filters;
+    steamUrl += `&filters=${filters}`;
   }
 
   try {
@@ -34,7 +34,7 @@ export async function onRequest(context) {
 
     if (!res.ok) {
       return new Response(
-        JSON.stringify({ error: 'Steam API error: ' + res.status }),
+        JSON.stringify({ error: `Steam API error: ${res.status}` }),
         { status: 502, headers: { ...headers, 'Content-Type': 'application/json' } }
       );
     }
