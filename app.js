@@ -16,7 +16,6 @@ var els = {
   sourceInfo: document.getElementById('sourceInfo'),
   fileList: document.getElementById('fileList'),
   downloadAllBtn: document.getElementById('downloadAllBtn'),
-  copyAllBtn: document.getElementById('copyAllBtn'),
 };
 
 function show(el) { el.classList.remove('hidden'); }
@@ -68,8 +67,8 @@ async function fetchGameInfo(appId) {
 async function fetchManifests(appId) {
   var res = await fetch(API + '/manifests?appid=' + appId);
   if (!res.ok) {
-    var err = await res.json().catch(function() { return { error: 'Error del servidor' }; });
-    throw new Error(err.error || 'Error al buscar manifests');
+    var err = await res.json().catch(function() { return { error: 'Error' }; });
+    throw new Error(err.error || 'Error');
   }
   return await res.json();
 }
@@ -77,7 +76,7 @@ async function fetchManifests(appId) {
 async function doFetch() {
   var appId = els.input.value.trim();
   if (!appId || isNaN(appId) || appId <= 0) {
-    setError('Ingresa un App ID valido (solo numeros).');
+    setError('Ingresa un App ID valido.');
     return;
   }
 
@@ -95,9 +94,7 @@ async function doFetch() {
     hide(els.loading);
 
     if (!manifests.found) {
-      setError('App ID ' + appId + ' no encontrado en ManifestHub. ' +
-        (manifests.errors.length > 0 ? 'Detalles: ' + manifests.errors.join('; ') : '') +
-        ' Prueba buscar el ID en SteamDB: https://steamdb.info/app/' + appId);
+      setError('No se encontraron manifests para el App ID ' + appId + '.');
       show(els.welcome);
       return;
     }
@@ -123,11 +120,14 @@ async function doFetch() {
     }
 
     els.manifestCount.textContent = manifests.totalManifests + ' manifest(s)';
-    els.sourceInfo.textContent = 'Fuente: ' + manifests.primarySource +
-      (manifests.sources.length > 1 ? ' (+ ' + (manifests.sources.length - 1) + ' mas)' : '');
 
-    renderFiles(manifests.allFiles);
+    var sourceText = manifests.source;
+    if (manifests.allSources.length > 1) {
+      sourceText += ' (+' + (manifests.allSources.length - 1) + ' mas)';
+    }
+    els.sourceInfo.textContent = sourceText;
 
+    renderFiles(manifests.files);
     show(els.results);
   } catch (err) {
     hide(els.loading);
@@ -140,43 +140,35 @@ function renderFiles(files) {
   var manifests = files.filter(function(f) { return f.isManifest; });
   var luaFiles = files.filter(function(f) { return f.isLua; });
   var vdfFiles = files.filter(function(f) { return f.isVdf; });
-  var jsonFiles = files.filter(function(f) { return f.isJson; });
+  var otherFiles = files.filter(function(f) { return !f.isManifest && !f.isLua && !f.isVdf; });
 
   var html = '';
 
   if (manifests.length > 0) {
     html += '<div class="file-section">';
-    html += '<h4 class="file-section-title">Manifest Files <span class="file-badge">' + manifests.length + '</span></h4>';
-    manifests.forEach(function(f) {
-      html += buildFileRow(f, 'manifest');
-    });
+    html += '<h4 class="file-section-title">Manifests <span class="file-badge">' + manifests.length + '</span></h4>';
+    manifests.forEach(function(f) { html += buildFileRow(f, 'manifest'); });
     html += '</div>';
   }
 
   if (luaFiles.length > 0) {
     html += '<div class="file-section">';
     html += '<h4 class="file-section-title">Lua Scripts <span class="file-badge">' + luaFiles.length + '</span></h4>';
-    luaFiles.forEach(function(f) {
-      html += buildFileRow(f, 'lua');
-    });
+    luaFiles.forEach(function(f) { html += buildFileRow(f, 'lua'); });
     html += '</div>';
   }
 
   if (vdfFiles.length > 0) {
     html += '<div class="file-section">';
-    html += '<h4 class="file-section-title">Key / VDF Files <span class="file-badge">' + vdfFiles.length + '</span></h4>';
-    vdfFiles.forEach(function(f) {
-      html += buildFileRow(f, 'vdf');
-    });
+    html += '<h4 class="file-section-title">Keys / VDF <span class="file-badge">' + vdfFiles.length + '</span></h4>';
+    vdfFiles.forEach(function(f) { html += buildFileRow(f, 'vdf'); });
     html += '</div>';
   }
 
-  if (jsonFiles.length > 0) {
+  if (otherFiles.length > 0) {
     html += '<div class="file-section">';
-    html += '<h4 class="file-section-title">JSON Config <span class="file-badge">' + jsonFiles.length + '</span></h4>';
-    jsonFiles.forEach(function(f) {
-      html += buildFileRow(f, 'json');
-    });
+    html += '<h4 class="file-section-title">Otros Archivos <span class="file-badge">' + otherFiles.length + '</span></h4>';
+    otherFiles.forEach(function(f) { html += buildFileRow(f, 'other'); });
     html += '</div>';
   }
 
@@ -187,24 +179,25 @@ function buildFileRow(f, type) {
   var icon = type === 'manifest' ? '\uD83D\uDCE6' : type === 'lua' ? '\uD83D\uDCDC' : type === 'vdf' ? '\uD83D\uDD11' : '\uD83D\uDCC4';
   var sizeStr = f.size ? formatBytes(f.size) : '';
   var escapedUrl = f.rawUrl.replace(/'/g, "\\'");
+  var escapedName = f.name.replace(/'/g, "\\'");
 
   return '<div class="file-row file-type-' + type + '">' +
     '<div class="file-info">' +
       '<span class="file-icon">' + icon + '</span>' +
       '<div class="file-details">' +
         '<span class="file-name">' + f.name + '</span>' +
-        '<span class="file-meta">' + sizeStr + (f.sha ? ' · ' + f.sha.substring(0, 8) : '') + '</span>' +
+        '<span class="file-meta">' + sizeStr + '</span>' +
       '</div>' +
     '</div>' +
     '<div class="file-actions">' +
-      '<button class="btn-dl" onclick="downloadFile(\'' + escapedUrl + '\', \'' + f.name.replace(/'/g, "\\'") + '\')" title="Descargar">Descargar</button>' +
-      '<button class="btn-github" onclick="window.open(\'' + f.htmlUrl + '\', \'_blank\')" title="Ver en GitHub">GitHub</button>' +
+      '<button class="btn-dl" onclick="downloadFile(\'' + escapedUrl + '\', \'' + escapedName + '\')">Descargar</button>' +
+      (f.htmlUrl ? '<button class="btn-github" onclick="window.open(\'' + f.htmlUrl + '\', \'_blank\')">GitHub</button>' : '') +
     '</div>' +
   '</div>';
 }
 
 async function downloadAll() {
-  if (!currentData || !currentData.allFiles.length) return;
+  if (!currentData || !currentData.files.length) return;
 
   if (typeof JSZip === 'undefined') {
     setError('JSZip no se cargo. Recarga la pagina.');
@@ -214,30 +207,26 @@ async function downloadAll() {
   var zip = new JSZip();
   var folderName = currentData.appId + '_manifests';
   var folder = zip.folder(folderName);
-  var manifests = currentData.allFiles.filter(function(f) { return f.isManifest || f.isLua || f.isVdf; });
 
   els.downloadAllBtn.textContent = 'Descargando...';
   els.downloadAllBtn.disabled = true;
 
-  for (var i = 0; i < manifests.length; i++) {
-    var f = manifests[i];
+  var toDownload = currentData.files.filter(function(f) { return f.isManifest || f.isLua || f.isVdf; });
+
+  for (var i = 0; i < toDownload.length; i++) {
+    var f = toDownload[i];
     try {
       var res = await fetch(API + '/download?url=' + encodeURIComponent(f.rawUrl) + '&name=' + encodeURIComponent(f.name));
       if (res.ok) {
         var blob = await res.blob();
         folder.file(f.name, blob);
-      } else {
-        folder.file(f.name + '.error.txt', 'Download failed: HTTP ' + res.status);
       }
-    } catch (e) {
-      folder.file(f.name + '.error.txt', 'Error: ' + e.message);
-    }
+    } catch (e) {}
   }
 
   folder.file('info.json', JSON.stringify({
     appId: currentData.appId,
-    source: currentData.primarySource,
-    totalManifests: currentData.totalManifests,
+    source: currentData.source,
     timestamp: new Date().toISOString()
   }, null, 2));
 
