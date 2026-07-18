@@ -451,3 +451,105 @@ footer {
     border-radius: 8px;
     border: 1px solid var(--border);
 }
+
+.depots-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.depots-count {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.btn-download-all {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.9rem;
+    border: none;
+    border-radius: 8px;
+    background: var(--success);
+    color: var(--text-bright);
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-download-all:hover {
+    background: #43a047;
+}
+
+.btn-download-all::before {
+    content: '\uD83D\uDCE6';
+}
+
+.manifest-item .depot-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0;
+}
+
+.btn-download {
+    padding: 0.4rem 0.875rem;
+    font-size: 0.8rem;
+    border: none;
+    border-radius: 6px;
+    background: var(--accent);
+    color: var(--bg-primary);
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.btn-download:hover {
+    background: var(--accent-hover);
+}
+
+.badge-dlc {
+    display: inline-block;
+    background: rgba(255, 152, 0, 0.2);
+    color: var(--warning);
+    padding: 0.1rem 0.4rem;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    vertical-align: middle;
+    margin-left: 0.25rem;
+}
+
+.depot-config {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    font-family: monospace;
+    opacity: 0.7;
+}
+
+@media (max-width: 768px) {
+    .depots-toolbar {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .manifest-item {
+        flex-direction: column;
+        gap: 0.75rem;
+        text-align: center;
+    }
+
+    .manifest-item .depot-actions {
+        width: 100%;
+        justify-content: center;
+    }
+}
