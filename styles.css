@@ -529,11 +529,75 @@ footer {
     margin-left: 0.25rem;
 }
 
-.depot-config {
-    color: var(--text-secondary);
-    font-size: 0.75rem;
-    font-family: monospace;
-    opacity: 0.7;
+.badge-app {
+    display: inline-block;
+    background: rgba(76, 175, 80, 0.2);
+    color: var(--success);
+    padding: 0.1rem 0.4rem;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    vertical-align: middle;
+    margin-left: 0.25rem;
+}
+
+.badge-pkg {
+    display: inline-block;
+    background: rgba(102, 192, 244, 0.2);
+    color: var(--accent);
+    padding: 0.1rem 0.4rem;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    vertical-align: middle;
+    margin-left: 0.25rem;
+}
+
+.btn-copy {
+    padding: 0.4rem 0.875rem;
+    font-size: 0.8rem;
+    border: 2px solid var(--accent);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--accent);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.btn-copy:hover {
+    background: var(--accent);
+    color: var(--bg-primary);
+}
+
+.btn-copy.copied {
+    border-color: var(--success);
+    color: var(--success);
+}
+
+.btn-copy.copied:hover {
+    background: var(--success);
+    color: var(--text-bright);
+}
+
+.depots-notice {
+    background: rgba(102, 192, 244, 0.1);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 0.875rem 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+}
+
+.depots-notice a {
+    color: var(--accent);
+    text-decoration: underline;
+}
+
+.depots-notice a:hover {
+    color: var(--accent-hover);
 }
 
 @media (max-width: 768px) {

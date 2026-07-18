@@ -27,8 +27,7 @@ const manifestsList = document.getElementById('manifestsList');
 
 let currentAppId = null;
 let currentGameName = null;
-let currentDepots = [];
-let depotDataMap = {};
+let currentItems = [];
 
 function showError(msg) {
     errorEl.textContent = msg;
@@ -51,9 +50,9 @@ function hideLoading() {
 
 function formatBytes(bytes) {
     if (!bytes) return 'N/A';
-    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-    let i = 0;
-    let size = bytes;
+    var units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    var i = 0;
+    var size = bytes;
     while (size >= 1024 && i < units.length - 1) {
         size /= 1024;
         i++;
@@ -62,257 +61,15 @@ function formatBytes(bytes) {
 }
 
 function downloadFile(filename, content, mimeType) {
-    const blob = new Blob([content], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    var blob = new Blob([content], { type: mimeType });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
     a.href = url;
     a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-}
-
-function downloadDepotJson(depotId, depot) {
-    const data = {
-        appId: currentAppId,
-        gameName: currentGameName,
-        depotId: depotId,
-        depotName: depot.name || 'Depot ' + depotId,
-        maxSize: depot.maxsize || null,
-        maxSizeFormatted: depot.maxsize ? formatBytes(depot.maxsize) : 'N/A',
-        config: depot.config || {},
-        branching: depot.branches || {},
-        timestamp: new Date().toISOString(),
-        steamCmdCommand: 'steamcmd +login anonymous +download_depot ' + currentAppId + ' ' + depotId + ' +quit',
-        depotDownloaderCommand: 'dotnet DepotDownloader.dll -app ' + currentAppId + ' -depot ' + depotId
-    };
-    const json = JSON.stringify(data, null, 2);
-    const safeName = (depot.name || 'depot_' + depotId).replace(/[^a-zA-Z0-9_-]/g, '_');
-    downloadFile(safeName + '_' + depotId + '.json', json, 'application/json');
-}
-
-async function downloadAllDepotsZip() {
-    if (currentDepots.length === 0) return;
-
-    if (typeof JSZip === 'undefined') {
-        showError('JSZip no se cargo. Recarga la pagina e intenta de nuevo.');
-        return;
-    }
-
-    const zip = new JSZip();
-    const folder = zip.folder('depots_' + currentAppId + '_' + (currentGameName || 'unknown').replace(/[^a-zA-Z0-9]/g, '_'));
-
-    currentDepots.forEach(function(entry) {
-        const depotId = entry[0];
-        const depot = entry[1];
-        const depotName = depot.name || 'depot_' + depotId;
-        const safeName = depotName.replace(/[^a-zA-Z0-9_-]/g, '_');
-
-        const data = {
-            appId: currentAppId,
-            gameName: currentGameName,
-            depotId: depotId,
-            depotName: depotName,
-            maxSize: depot.maxsize || null,
-            maxSizeFormatted: depot.maxsize ? formatBytes(depot.maxsize) : 'N/A',
-            config: depot.config || {},
-            branching: depot.branches || {},
-            timestamp: new Date().toISOString(),
-            steamCmdCommand: 'steamcmd +login anonymous +download_depot ' + currentAppId + ' ' + depotId + ' +quit',
-            depotDownloaderCommand: 'dotnet DepotDownloader.dll -app ' + currentAppId + ' -depot ' + depotId
-        };
-
-        folder.file(safeName + '_' + depotId + '.json', JSON.stringify(data, null, 2));
-    });
-
-    const readme = [
-        '# Steam Depots - ' + (currentGameName || 'Unknown'),
-        '# App ID: ' + currentAppId,
-        '# Total Depots: ' + currentDepots.length,
-        '# Generated: ' + new Date().toISOString(),
-        '',
-        '## Descargar contenido real de los depots:',
-        '',
-        '### Opcion 1: SteamCMD',
-        '1. Descarga SteamCMD de: https://developer.valvesoftware.com/wiki/SteamCMD',
-        '2. Ejecuta el comando de cada depot en su archivo JSON',
-        '',
-        '### Opcion 2: DepotDownloader',
-        '1. Descarga de: https://github.com/SteamRE/DepotDownloader/releases',
-        '2. Ejecuta: dotnet DepotDownloader.dll -app ' + currentAppId + ' -depot <DEPOT_ID>',
-        '',
-        '### Nota:',
-        'Algunos juegos requieren autenticacion con tu cuenta de Steam.',
-        'Los juegos gratuitos suelen funcionar con login anonymous.'
-    ].join('\n');
-
-    folder.file('README.txt', readme);
-
-    const content = await zip.generateAsync({ type: 'blob' });
-    const url = URL.createObjectURL(content);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'depots_' + currentAppId + '.zip';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-}
-
-function buildSourceCard(icon, name, type, typeLabel, desc, url) {
-    return `
-        <div class="source-card">
-            <div class="source-header">
-                <div class="source-icon">${icon}</div>
-                <div>
-                    <div class="source-name">${name}</div>
-                    <span class="source-type type-${type}">${typeLabel}</span>
-                </div>
-            </div>
-            <div class="source-desc">${desc}</div>
-            <a href="${url}" target="_blank" rel="noopener noreferrer">Ir a fuente</a>
-        </div>
-    `;
-}
-
-function buildOfficialSources(appId) {
-    const sources = [
-        {
-            icon: '\uD83C\uDFAE',
-            name: 'Steam Store',
-            type: 'official',
-            typeLabel: 'Oficial',
-            desc: 'Pagina oficial del juego en Steam Store.',
-            url: 'https://store.steampowered.com/app/' + appId
-        },
-        {
-            icon: '\uD83D\uDCE1',
-            name: 'Steam Web API',
-            type: 'official',
-            typeLabel: 'Oficial',
-            desc: 'API oficial de Steam para informacion de depots.',
-            url: 'https://store.steampowered.com/api/appdetails?appids=' + appId
-        },
-        {
-            icon: '\uD83D\uDD27',
-            name: 'SteamCMD',
-            type: 'official',
-            typeLabel: 'Oficial (Valve)',
-            desc: 'Herramienta oficial de Valve para descargar depots y manifests.',
-            url: 'https://developer.valvesoftware.com/wiki/SteamCMD'
-        },
-        {
-            icon: '\uD83D\uDCCA',
-            name: 'SteamDB App Page',
-            type: 'official',
-            typeLabel: 'Oficial-adjacente',
-            desc: 'Base de datos que trackea depots, manifests y cambios de precios.',
-            url: 'https://steamdb.info/app/' + appId + '/depots/'
-        }
-    ];
-
-    officialSources.innerHTML = sources.map(function(s) {
-        return buildSourceCard(s.icon, s.name, s.type, s.typeLabel, s.desc, s.url);
-    }).join('');
-}
-
-function buildCommunitySources(appId) {
-    var sources = [
-        {
-            icon: '\uD83D\uDCD6',
-            name: 'SteamDB Depot History',
-            type: 'community',
-            typeLabel: 'Comunidad',
-            desc: 'Historial completo de cambios de depots y manifest updates.',
-            url: 'https://steamdb.info/app/' + appId + '/depots/?branch=public'
-        },
-        {
-            icon: '\uD83C\uDF10',
-            name: 'PCGamingWiki',
-            type: 'community',
-            typeLabel: 'Comunidad',
-            desc: 'Wiki comunitaria con info detallada sobre versiones y archivos.',
-            url: 'https://www.pcgamingwiki.com/wiki/App:' + appId
-        },
-        {
-            icon: '\uD83D\uDDBC\uFE0F',
-            name: 'SteamGridDB',
-            type: 'community',
-            typeLabel: 'Comunidad',
-            desc: 'Base de datos comunitaria de arte y metadatos de juegos.',
-            url: 'https://steamgriddb.com/game/' + appId
-        },
-        {
-            icon: '\uD83D\uDC65',
-            name: 'Steam Community',
-            type: 'community',
-            typeLabel: 'Comunidad',
-            desc: 'Foro oficial de la comunidad del juego en Steam.',
-            url: 'https://steamcommunity.com/app/' + appId + '/discussions/'
-        },
-        {
-            icon: '\uD83D\uDCCB',
-            name: 'Steam Store API (Info Completa)',
-            type: 'community',
-            typeLabel: 'Comunidad',
-            desc: 'Pagina formateada con toda la info del juego desde la API.',
-            url: 'https://store.steampowered.com/api/appdetails?appids=' + appId + '&filters=basic,price_overview'
-        },
-        {
-            icon: '\uD83D\uDD0D',
-            name: 'Depot Downloader (GitHub)',
-            type: 'community',
-            typeLabel: 'Open Source',
-            desc: 'Herramienta open-source para descargar depots individuales.',
-            url: 'https://github.com/SteamRE/DepotDownloader'
-        }
-    ];
-
-    communitySources.innerHTML = sources.map(function(s) {
-        return buildSourceCard(s.icon, s.name, s.type, s.typeLabel, s.desc, s.url);
-    }).join('');
-}
-
-function buildDownloadTools(appId) {
-    var sources = [
-        {
-            icon: '\u2699\uFE0F',
-            name: 'SteamCMD - Descargar Depot',
-            type: 'tool',
-            typeLabel: 'Herramienta Valve',
-            desc: 'Comando: steamcmd +login anonymous +download_depot ' + appId + ' ' + appId + ' +quit',
-            url: 'https://developer.valvesoftware.com/wiki/SteamCMD#Running_SteamCMD'
-        },
-        {
-            icon: '\uD83D\uDCE6',
-            name: 'DepotDownloader',
-            type: 'tool',
-            typeLabel: 'Open Source',
-            desc: 'Descarga depots especificos de Steam. Requiere autenticacion.',
-            url: 'https://github.com/SteamRE/DepotDownloader/releases'
-        },
-        {
-            icon: '\uD83D\uDDC2\uFE0F',
-            name: 'Steam Manifest Viewer',
-            type: 'tool',
-            typeLabel: 'Herramienta',
-            desc: 'Herramientas de la comunidad para inspeccionar archivos manifest.',
-            url: 'https://github.com/nickspaargaren/steam-manifest'
-        },
-        {
-            icon: '\uD83D\uDCE1',
-            name: 'Steam API - GetAppList',
-            type: 'tool',
-            typeLabel: 'API',
-            desc: 'Lista completa de aplicaciones de Steam para verificar App IDs.',
-            url: 'https://steamdb.info/api/GetAppList/'
-        }
-    ];
-
-    downloadTools.innerHTML = sources.map(function(s) {
-        return buildSourceCard(s.icon, s.name, s.type, s.typeLabel, s.desc, s.url);
-    }).join('');
 }
 
 function steamApiUrl(appId, filters) {
@@ -326,42 +83,261 @@ function steamApiUrl(appId, filters) {
 }
 
 async function fetchSteamData(appId) {
-    var url = steamApiUrl(appId);
-    var response = await fetch(url);
-
-    if (!response.ok) {
-        throw new Error('Error del servidor (' + response.status + '). Intenta de nuevo.');
-    }
-
+    var response = await fetch(steamApiUrl(appId));
+    if (!response.ok) throw new Error('Error del servidor (' + response.status + ').');
     var data = await response.json();
-
-    if (data.error) {
-        throw new Error(data.error);
-    }
-
-    if (!data[appId] || !data[appId].success) {
-        throw new Error('No se encontro el juego. Verifica que el App ID sea correcto.');
-    }
-
+    if (data.error) throw new Error(data.error);
+    if (!data[appId] || !data[appId].success) throw new Error('Juego no encontrado. Verifica el App ID.');
     return data[appId].data;
 }
 
-async function fetchDepots(appId) {
+async function fetchPackages(appId) {
     try {
-        var url = steamApiUrl(appId, 'depots');
-        var response = await fetch(url);
+        var response = await fetch(steamApiUrl(appId, 'packages'));
         if (!response.ok) return null;
-
         var data = await response.json();
         if (data.error) return null;
-
-        if (data[appId] && data[appId].success && data[appId].data && data[appId].data.depots) {
-            return data[appId].data.depots;
+        if (data[appId] && data[appId].success && data[appId].data) {
+            return data[appId].data;
         }
-    } catch (e) {
-        console.warn('No se pudieron obtener depots:', e);
-    }
+    } catch (e) {}
     return null;
+}
+
+function buildSourceCard(icon, name, type, typeLabel, desc, url) {
+    return '<div class="source-card">' +
+        '<div class="source-header">' +
+            '<div class="source-icon">' + icon + '</div>' +
+            '<div>' +
+                '<div class="source-name">' + name + '</div>' +
+                '<span class="source-type type-' + type + '">' + typeLabel + '</span>' +
+            '</div>' +
+        '</div>' +
+        '<div class="source-desc">' + desc + '</div>' +
+        '<a href="' + url + '" target="_blank" rel="noopener noreferrer">Ir a fuente</a>' +
+    '</div>';
+}
+
+function buildOfficialSources(appId) {
+    var sources = [
+        { icon: '\uD83C\uDFAE', name: 'Steam Store', type: 'official', typeLabel: 'Oficial', desc: 'Pagina oficial del juego.', url: 'https://store.steampowered.com/app/' + appId },
+        { icon: '\uD83D\uDD27', name: 'SteamCMD', type: 'official', typeLabel: 'Oficial (Valve)', desc: 'Herramienta oficial para descargar depots.', url: 'https://developer.valvesoftware.com/wiki/SteamCMD' },
+        { icon: '\uD83D\uDCCA', name: 'SteamDB - Depots', type: 'official', typeLabel: 'SteamDB', desc: 'Historial de depots, manifests y cambios.', url: 'https://steamdb.info/app/' + appId + '/depots/' },
+        { icon: '\uD83D\uDCCA', name: 'SteamDB - Info', type: 'official', typeLabel: 'SteamDB', desc: 'Info completa del juego en SteamDB.', url: 'https://steamdb.info/app/' + appId + '/' }
+    ];
+    officialSources.innerHTML = sources.map(function(s) {
+        return buildSourceCard(s.icon, s.name, s.type, s.typeLabel, s.desc, s.url);
+    }).join('');
+}
+
+function buildCommunitySources(appId) {
+    var sources = [
+        { icon: '\uD83D\uDCD6', name: 'SteamDB Depot History', type: 'community', typeLabel: 'Comunidad', desc: 'Historial de manifest updates por branch.', url: 'https://steamdb.info/app/' + appId + '/depots/?branch=public' },
+        { icon: '\uD83C\uDF10', name: 'PCGamingWiki', type: 'community', typeLabel: 'Comunidad', desc: 'Info detallada sobre versiones y archivos.', url: 'https://www.pcgamingwiki.com/wiki/App:' + appId },
+        { icon: '\uD83D\uDC65', name: 'Steam Community', type: 'community', typeLabel: 'Comunidad', desc: 'Foro oficial de la comunidad.', url: 'https://steamcommunity.com/app/' + appId + '/discussions/' },
+        { icon: '\uD83D\uDD0D', name: 'DepotDownloader', type: 'community', typeLabel: 'Open Source', desc: 'Herramienta para descargar depots individuales.', url: 'https://github.com/SteamRE/DepotDownloader' }
+    ];
+    communitySources.innerHTML = sources.map(function(s) {
+        return buildSourceCard(s.icon, s.name, s.type, s.typeLabel, s.desc, s.url);
+    }).join('');
+}
+
+function buildDownloadTools(appId) {
+    var sources = [
+        { icon: '\u2699\uFE0F', name: 'SteamCMD', type: 'tool', typeLabel: 'Herramienta Valve', desc: 'Descarga depots y manifests via linea de comandos.', url: 'https://developer.valvesoftware.com/wiki/SteamCMD' },
+        { icon: '\uD83D\uDCE6', name: 'DepotDownloader', type: 'tool', typeLabel: 'Open Source', desc: 'Descarga depots con .NET. Soporta autenticacion.', url: 'https://github.com/SteamRE/DepotDownloader/releases' },
+        { icon: '\uD83D\uDCE1', name: 'Steam API - AppList', type: 'tool', typeLabel: 'API', desc: 'Lista de todas las apps de Steam.', url: 'https://steamdb.info/api/GetAppList/' }
+    ];
+    downloadTools.innerHTML = sources.map(function(s) {
+        return buildSourceCard(s.icon, s.name, s.type, s.typeLabel, s.desc, s.url);
+    }).join('');
+}
+
+function buildManifestsUI(appId, gameData, packagesData) {
+    var items = [];
+
+    if (gameData.dlc && gameData.dlc.length > 0) {
+        gameData.dlc.forEach(function(dlcId) {
+            items.push({
+                id: dlcId,
+                name: 'DLC ' + dlcId,
+                type: 'dlc',
+                price: null,
+                steamCmd: 'steamcmd +login <usuario> +download_depot ' + appId + ' ' + dlcId + ' +quit',
+                depotDownloader: 'dotnet DepotDownloader.dll -app ' + appId + ' -depot ' + dlcId
+            });
+        });
+    }
+
+    if (packagesData && packagesData.package_groups) {
+        packagesData.package_groups.forEach(function(group) {
+            if (group.subs) {
+                group.subs.forEach(function(sub) {
+                    var alreadyExists = items.some(function(item) { return item.id === sub.packageid; });
+                    if (!alreadyExists) {
+                        items.push({
+                            id: sub.packageid,
+                            name: sub.option_text || group.title || 'Package ' + sub.packageid,
+                            type: 'package',
+                            price: sub.price_in_cents_with_discount,
+                            steamCmd: 'steamcmd +login <usuario> +download_depot ' + appId + ' ' + sub.packageid + ' +quit',
+                            depotDownloader: 'dotnet DepotDownloader.dll -app ' + appId + ' -depot ' + sub.packageid
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    items.push({
+        id: appId,
+        name: gameData.name + ' (App Principal)',
+        type: 'app',
+        price: gameData.is_free ? 0 : (gameData.price_overview ? gameData.price_overview.final : null),
+        steamCmd: 'steamcmd +login <usuario> +download_depot ' + appId + ' ' + appId + ' +quit',
+        depotDownloader: 'dotnet DepotDownloader.dll -app ' + appId
+    });
+
+    currentItems = items;
+    infoDepots.textContent = items.length;
+
+    var html = '<div class="depots-toolbar">';
+    html += '<span class="depots-count">' + items.length + ' elemento(s) disponible(s)</span>';
+    html += '<button class="btn-download-all" onclick="downloadAllZip()">Descargar Todo (.zip)</button>';
+    html += '</div>';
+
+    html += '<div class="depots-notice">';
+    html += '<p><strong>Nota:</strong> Valve ya no expone depot IDs via la API publica. Los IDs mostrados son package IDs. ';
+    html += 'Para encontrar los depot IDs reales, visita <a href="https://steamdb.info/app/' + appId + '/depots/" target="_blank">SteamDB Depots</a>. ';
+    html += 'Los comandos generados usan estos IDs como referencia.</p>';
+    html += '</div>';
+
+    items.forEach(function(item) {
+        var typeLabel = item.type === 'dlc' ? 'DLC' : (item.type === 'app' ? 'APP' : 'PKG');
+        var typeClass = item.type === 'dlc' ? 'badge-dlc' : (item.type === 'app' ? 'badge-app' : 'badge-pkg');
+        var priceStr = item.price === 0 ? 'Gratis' : (item.price ? '$' + (item.price / 100).toFixed(2) : '');
+
+        html += '<div class="manifest-item">';
+        html += '<div class="depot-info">';
+        html += '<span class="depot-name">' + item.name + ' <span class="' + typeClass + '">' + typeLabel + '</span></span>';
+        html += '<span class="depot-id">ID: ' + item.id + (priceStr ? ' | ' + priceStr : '') + '</span>';
+        html += '</div>';
+        html += '<div class="depot-actions">';
+        html += '<button class="btn-copy" onclick="copyToClipboard(this)" data-text="' + item.steamCmd.replace(/"/g, '&quot;') + '" title="Copiar comando SteamCMD">SteamCMD</button>';
+        html += '<button class="btn-download" onclick="downloadItemJson(' + items.indexOf(item) + ')">Descargar .json</button>';
+        html += '</div>';
+        html += '</div>';
+    });
+
+    manifestsList.innerHTML = html;
+}
+
+function copyToClipboard(btn) {
+    var text = btn.getAttribute('data-text');
+    navigator.clipboard.writeText(text).then(function() {
+        var original = btn.textContent;
+        btn.textContent = 'Copiado!';
+        btn.classList.add('copied');
+        setTimeout(function() {
+            btn.textContent = original;
+            btn.classList.remove('copied');
+        }, 1500);
+    });
+}
+
+function downloadItemJson(index) {
+    var item = currentItems[index];
+    if (!item) return;
+    var data = {
+        appId: currentAppId,
+        gameName: currentGameName,
+        itemId: item.id,
+        itemName: item.name,
+        itemType: item.type,
+        timestamp: new Date().toISOString(),
+        steamCmdCommand: item.steamCmd,
+        depotDownloaderCommand: item.depotDownloader,
+        steamdbUrl: 'https://steamdb.info/app/' + currentAppId + '/depots/'
+    };
+    var json = JSON.stringify(data, null, 2);
+    var safeName = item.name.replace(/[^a-zA-Z0-9_-]/g, '_');
+    downloadFile(safeName + '_' + item.id + '.json', json, 'application/json');
+}
+
+async function downloadAllZip() {
+    if (currentItems.length === 0) return;
+
+    if (typeof JSZip === 'undefined') {
+        showError('JSZip no se cargo. Recarga la pagina.');
+        return;
+    }
+
+    var zip = new JSZip();
+    var folderName = 'steam_' + currentAppId + '_' + (currentGameName || 'unknown').replace(/[^a-zA-Z0-9]/g, '_');
+    var folder = zip.folder(folderName);
+
+    currentItems.forEach(function(item) {
+        var safeName = item.name.replace(/[^a-zA-Z0-9_-]/g, '_');
+        var data = {
+            appId: currentAppId,
+            gameName: currentGameName,
+            itemId: item.id,
+            itemName: item.name,
+            itemType: item.type,
+            timestamp: new Date().toISOString(),
+            steamCmdCommand: item.steamCmd,
+            depotDownloaderCommand: item.depotDownloader,
+            steamdbUrl: 'https://steamdb.info/app/' + currentAppId + '/depots/'
+        };
+        folder.file(safeName + '_' + item.id + '.json', JSON.stringify(data, null, 2));
+    });
+
+    var commands = currentItems.map(function(item) {
+        return '# ' + item.name + ' (ID: ' + item.id + ')\n' +
+               '# SteamCMD:\n' + item.steamCmd + '\n' +
+               '# DepotDownloader:\n' + item.depotDownloader + '\n';
+    }).join('\n');
+
+    folder.file('all_commands.txt', commands);
+
+    var readme = [
+        '# Steam Depots - ' + (currentGameName || 'Unknown'),
+        '# App ID: ' + currentAppId,
+        '# Total items: ' + currentItems.length,
+        '# Generated: ' + new Date().toISOString(),
+        '',
+        '## Descargar contenido:',
+        '',
+        '### Opcion 1: SteamCMD',
+        '1. Descarga: https://developer.valvesoftware.com/wiki/SteamCMD',
+        '2. Ejecuta los comandos de cada archivo JSON',
+        '3. Para juegos que requieren login: steamcmd +login tu_usuario +download_depot APPID DEPOTID +quit',
+        '',
+        '### Opcion 2: DepotDownloader',
+        '1. Descarga: https://github.com/SteamRE/DepotDownloader/releases',
+        '2. Ejecuta: dotnet DepotDownloader.dll -app APPID -depot DEPOTID',
+        '3. Para juegos de pago: -username tu_usuario -password tu_password',
+        '',
+        '### Encontrar Depot IDs reales:',
+        'Los IDs de la API publica son Package IDs, no Depot IDs.',
+        'Para ver los Depot IDs reales, visita: https://steamdb.info/app/' + currentAppId + '/depots/',
+        '',
+        '### Nota:',
+        'Algunos juegos requieren autenticacion con tu cuenta de Steam.',
+        'Los juegos gratuitos suelen funcionar con login anonymous.'
+    ].join('\n');
+
+    folder.file('README.txt', readme);
+
+    var content = await zip.generateAsync({ type: 'blob' });
+    var url = URL.createObjectURL(content);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = folderName + '.zip';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }
 
 async function performSearch() {
@@ -377,6 +353,7 @@ async function performSearch() {
 
     try {
         var gameData = await fetchSteamData(appId);
+        var packagesData = await fetchPackages(appId);
 
         hideLoading();
 
@@ -400,53 +377,7 @@ async function performSearch() {
         buildOfficialSources(appId);
         buildCommunitySources(appId);
         buildDownloadTools(appId);
-
-        var depots = await fetchDepots(appId);
-
-        if (depots && Object.keys(depots).length > 0) {
-            var depotEntries = Object.entries(depots).filter(function(entry) { return entry[0] !== '228980'; });
-            currentDepots = depotEntries;
-            depotDataMap = {};
-            depotEntries.forEach(function(entry) { depotDataMap[entry[0]] = entry[1]; });
-            infoDepots.textContent = depotEntries.length;
-
-            if (depotEntries.length > 0) {
-                var html = '<div class="depots-toolbar">';
-                html += '<span class="depots-count">' + depotEntries.length + ' depot(s) encontrado(s)</span>';
-                html += '<button class="btn-download-all" onclick="downloadAllDepotsZip()">Descargar Todos (.zip)</button>';
-                html += '</div>';
-
-                html += depotEntries.map(function(entry) {
-                    var depotId = entry[0];
-                    var depot = entry[1];
-                    var depotName = depot.name || 'Depot ' + depotId;
-                    var depotSize = depot.maxsize ? formatBytes(depot.maxsize) : 'Tamano no disponible';
-                    var isDLC = depot.config && depot.config.installonly;
-
-                    html += '<div class="manifest-item">';
-                    html += '<div class="depot-info">';
-                    html += '<span class="depot-name">' + depotName + (isDLC ? ' <span class="badge-dlc">DLC</span>' : '') + '</span>';
-                    html += '<span class="depot-id">Depot ID: ' + depotId + '</span>';
-                    if (depot.config && depot.config.launch) {
-                        html += '<span class="depot-config">Config: ' + JSON.stringify(depot.config).substring(0, 80) + '...</span>';
-                    }
-                    html += '</div>';
-                    html += '<div class="depot-actions">';
-                    html += '<span class="depot-size">' + depotSize + '</span>';
-                    html += '<button class="btn-download" onclick="downloadDepotJson(\'' + depotId + '\', depotDataMap[\'' + depotId + '\'])">Descargar .json</button>';
-                    html += '</div>';
-                    html += '</div>';
-                }).join('');
-
-                manifestsList.innerHTML = html;
-            } else {
-                manifestsList.innerHTML = '<div class="no-depots">No se encontraron depots disponibles para este juego.</div>';
-            }
-        } else {
-            currentDepots = [];
-            infoDepots.textContent = 'N/A';
-            manifestsList.innerHTML = '<div class="no-depots">La informacion de depots no esta disponible via la API publica.<br>Visita <a href="https://steamdb.info/app/' + appId + '/depots/" target="_blank">SteamDB</a> para ver los depots.</div>';
-        }
+        buildManifestsUI(appId, gameData, packagesData);
 
         resultsEl.classList.remove('hidden');
         welcomeEl.classList.add('hidden');
@@ -459,11 +390,6 @@ async function performSearch() {
 
 searchBtn.addEventListener('click', performSearch);
 appIdInput.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        performSearch();
-    }
+    if (e.key === 'Enter') performSearch();
 });
-
-appIdInput.addEventListener('input', function() {
-    hideError();
-});
+appIdInput.addEventListener('input', hideError);
