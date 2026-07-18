@@ -12,12 +12,25 @@ export async function onRequest(context) {
     return new Response(null, { headers });
   }
 
+  const path = url.pathname;
+
+  if (path === '/api/steam') {
+    return handleSteamApi(url, headers);
+  }
+
+  return new Response(JSON.stringify({ error: 'Not found' }), {
+    status: 404,
+    headers: { ...headers, 'Content-Type': 'application/json' },
+  });
+}
+
+async function handleSteamApi(url, headers) {
   const appId = url.searchParams.get('appid');
   const filters = url.searchParams.get('filters') || '';
 
   if (!appId || isNaN(appId)) {
     return new Response(
-      JSON.stringify({ error: 'App ID inválido' }),
+      JSON.stringify({ error: 'App ID invalido' }),
       { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
     );
   }
