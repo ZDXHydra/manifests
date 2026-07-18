@@ -1,33 +1,36 @@
-const IS_LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-const CORS_PROXY = 'https://corsproxy.io/?url=';
-const API_BASE = location.origin + '/api/steam';
+var IS_LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+var CORS_PROXY = 'https://corsproxy.io/?url=';
+var API_BASE = location.origin + '/api/steam';
+var MANIFESTS_API = location.origin + '/api/manifests';
+var DOWNLOAD_API = location.origin + '/api/download-manifest';
 
-const appIdInput = document.getElementById('appIdInput');
-const searchBtn = document.getElementById('searchBtn');
-const errorEl = document.getElementById('error');
-const loadingEl = document.getElementById('loading');
-const resultsEl = document.getElementById('results');
-const welcomeEl = document.getElementById('welcome');
+var appIdInput = document.getElementById('appIdInput');
+var searchBtn = document.getElementById('searchBtn');
+var errorEl = document.getElementById('error');
+var loadingEl = document.getElementById('loading');
+var resultsEl = document.getElementById('results');
+var welcomeEl = document.getElementById('welcome');
 
-const gameHeaderImage = document.getElementById('gameHeaderImage');
-const gameName = document.getElementById('gameName');
-const gameDeveloper = document.getElementById('gameDeveloper');
-const gamePublisher = document.getElementById('gamePublisher');
-const gameReleaseDate = document.getElementById('gameReleaseDate');
+var gameHeaderImage = document.getElementById('gameHeaderImage');
+var gameName = document.getElementById('gameName');
+var gameDeveloper = document.getElementById('gameDeveloper');
+var gamePublisher = document.getElementById('gamePublisher');
+var gameReleaseDate = document.getElementById('gameReleaseDate');
 
-const infoAppId = document.getElementById('infoAppId');
-const infoType = document.getElementById('infoType');
-const infoState = document.getElementById('infoState');
-const infoDepots = document.getElementById('infoDepots');
+var infoAppId = document.getElementById('infoAppId');
+var infoType = document.getElementById('infoType');
+var infoState = document.getElementById('infoState');
+var infoDepots = document.getElementById('infoDepots');
 
-const officialSources = document.getElementById('officialSources');
-const communitySources = document.getElementById('communitySources');
-const downloadTools = document.getElementById('downloadTools');
-const manifestsList = document.getElementById('manifestsList');
+var officialSources = document.getElementById('officialSources');
+var communitySources = document.getElementById('communitySources');
+var downloadTools = document.getElementById('downloadTools');
+var manifestsList = document.getElementById('manifestsList');
 
-let currentAppId = null;
-let currentGameName = null;
-let currentDepots = [];
+var currentAppId = null;
+var currentGameName = null;
+var currentDepots = [];
+var manifestResults = [];
 
 function showError(msg) {
     errorEl.textContent = msg;
@@ -80,12 +83,30 @@ function steamApiUrl(appId, filters) {
 }
 
 async function fetchSteamData(appId) {
-    var response = await fetch(steamApiUrl(appId));
+    var url = steamApiUrl(appId);
+    var response = await fetch(url);
     if (!response.ok) throw new Error('Error del servidor (' + response.status + ').');
     var data = await response.json();
     if (data.error) throw new Error(data.error);
     if (!data[appId] || !data[appId].success) throw new Error('Juego no encontrado. Verifica el App ID.');
     return data[appId].data;
+}
+
+async function fetchManifests(appId) {
+    if (IS_LOCAL) {
+        return null;
+    }
+    try {
+        var response = await fetch(MANIFESTS_API + '?appid=' + appId);
+        if (!response.ok) {
+            var err = await response.json();
+            throw new Error(err.error || 'Error al buscar manifests');
+        }
+        return await response.json();
+    } catch (err) {
+        console.warn('Error fetching manifests:', err);
+        return null;
+    }
 }
 
 function buildSourceCard(icon, name, type, typeLabel, desc, url) {
@@ -133,8 +154,23 @@ function copyCommand(btn) {
     });
 }
 
-function buildDepotsList(appId, gameData) {
+function downloadManifestFile(depotId, manifestUrl) {
+    var fullUrl = DOWNLOAD_API + '?depotId=' + depotId + '&url=' + encodeURIComponent(manifestUrl);
+    var a = document.createElement('a');
+    a.href = fullUrl;
+    a.download = 'depot_' + depotId + '.manifest';
+    a.click();
+}
+
+function buildDepotsList(appId, gameData, manifestsData) {
     var depots = [];
+    var manifestMap = {};
+
+    if (manifestsData && manifestsData.results) {
+        manifestsData.results.forEach(function(r) {
+            manifestMap[r.depotId] = r;
+        });
+    }
 
     depots.push({
         id: appId,
@@ -145,7 +181,7 @@ function buildDepotsList(appId, gameData) {
     });
 
     if (gameData.dlc && gameData.dlc.length > 0) {
-        gameData.dlc.forEach(function(dlcId, index) {
+        gameData.dlc.forEach(function(dlcId) {
             depots.push({
                 id: dlcId,
                 name: 'DLC ' + dlcId,
@@ -157,29 +193,63 @@ function buildDepotsList(appId, gameData) {
     }
 
     currentDepots = depots;
+    manifestResults = manifestsData ? manifestsData.results : [];
     infoDepots.textContent = depots.length;
 
+    var cdnInfo = manifestsData ? manifestsData.cdnServer : null;
+    var successCount = manifestResults.filter(function(r) { return r.downloadable; }).length;
+
     var html = '<div class="depots-toolbar">';
-    html += '<span class="depots-count">' + depots.length + ' depot(s) disponible(s)</span>';
+    html += '<span class="depots-count">' + depots.length + ' depot(s) encontrado(s)';
+    if (cdnInfo) {
+        html += ' | CDN: ' + cdnInfo;
+    }
+    if (successCount > 0) {
+        html += ' | <span class="manifests-found">' + successCount + ' manifest(s) listo(s) para descargar</span>';
+    }
+    html += '</span>';
     html += '<button class="btn-download-all" onclick="downloadAllZip()">Descargar Todo (.zip)</button>';
     html += '</div>';
 
-    html += '<div class="depots-notice">';
-    html += '<strong>Nota:</strong> El App ID es el depot principal del juego. ';
-    html += 'Para ver TODOS los depot IDs exactos, visita <a href="https://steamdb.info/app/' + appId + '/depots/" target="_blank">SteamDB Depots</a>. ';
-    html += 'Si un depot requiere licencia, usa tu usuario de Steam en el comando.';
-    html += '</div>';
+    if (successCount > 0) {
+        html += '<div class="depots-notice depots-notice-success">';
+        html += '<strong>\u2705 Manifests disponibles:</strong> Se encontraron archivos .manifest descargables desde los servidores CDN de Steam. ';
+        html += 'Haz clic en "Descargar .manifest" para obtener el archivo.';
+        html += '</div>';
+    } else {
+        html += '<div class="depots-notice">';
+        html += '<strong>\u2139\uFE0F Nota:</strong> Los manifests de Steam requieren autenticacion y IDs especificos no disponibles via API publica. ';
+        html += 'Para obtener los .manifest reales, usa <a href="https://steamdb.info/app/' + appId + '/depots/" target="_blank">SteamDB</a> para ver los Depot IDs exactos, ';
+        html += 'luego usa SteamCMD o DepotDownloader para descargarlos.';
+        html += '</div>';
+    }
 
     depots.forEach(function(depot, index) {
         var typeLabel = depot.type === 'main' ? 'MAIN' : 'DLC';
         var typeClass = depot.type === 'main' ? 'badge-app' : 'badge-dlc';
 
+        var manifestInfo = manifestMap[depot.id];
+
         html += '<div class="manifest-item">';
         html += '<div class="depot-info">';
         html += '<span class="depot-name">' + depot.name + ' <span class="' + typeClass + '">' + typeLabel + '</span></span>';
         html += '<span class="depot-id">Depot ID: ' + depot.id + '</span>';
+
+        if (manifestInfo) {
+            if (manifestInfo.downloadable) {
+                html += '<span class="depot-status depot-status-ok">\u2705 Manifest disponible (' + (manifestInfo.contentLength ? formatBytes(manifestInfo.contentLength) : 'tama\u00F1o desconocido') + ')</span>';
+            } else if (manifestInfo.error) {
+                html += '<span class="depot-status depot-status-error">\u274C ' + manifestInfo.error + '</span>';
+            }
+        }
+
         html += '</div>';
         html += '<div class="depot-actions">';
+
+        if (manifestInfo && manifestInfo.downloadable && manifestInfo.url) {
+            html += '<button class="btn-download-manifest" onclick="downloadManifestFile(' + depot.id + ', \'' + manifestInfo.url.replace(/'/g, "\\'") + '\')">Descargar .manifest</button>';
+        }
+
         html += '<button class="btn-copy" data-cmd="' + depot.steamCmd.replace(/"/g, '&quot;') + '" onclick="copyCommand(this)">Copiar CMD</button>';
         html += '<button class="btn-download" onclick="downloadItemJson(' + index + ')">.json</button>';
         html += '</div>';
@@ -192,6 +262,7 @@ function buildDepotsList(appId, gameData) {
 function downloadItemJson(index) {
     var depot = currentDepots[index];
     if (!depot) return;
+    var manifestInfo = manifestResults.find(function(r) { return r.depotId === depot.id; });
     var data = {
         appId: currentAppId,
         gameName: currentGameName,
@@ -203,6 +274,7 @@ function downloadItemJson(index) {
             steamCmd: depot.steamCmd,
             depotDownloader: depot.depotDownloader
         },
+        manifest: manifestInfo || null,
         steamDbDepots: 'https://steamdb.info/app/' + currentAppId + '/depots/'
     };
     downloadFile(depot.name.replace(/[^a-zA-Z0-9_-]/g, '_') + '_' + depot.id + '.json', JSON.stringify(data, null, 2), 'application/json');
@@ -218,6 +290,24 @@ async function downloadAllZip() {
     var zip = new JSZip();
     var folderName = 'steam_' + currentAppId + '_' + (currentGameName || 'unknown').replace(/[^a-zA-Z0-9]/g, '_');
     var folder = zip.folder(folderName);
+
+    var downloadable = manifestResults.filter(function(r) { return r.downloadable; });
+
+    if (downloadable.length > 0) {
+        var manifestFolder = folder.folder('manifests');
+        for (var i = 0; i < downloadable.length; i++) {
+            var m = downloadable[i];
+            try {
+                var res = await fetch(DOWNLOAD_API + '?depotId=' + m.depotId + '&url=' + encodeURIComponent(m.url));
+                if (res.ok) {
+                    var blob = await res.blob();
+                    manifestFolder.file('depot_' + m.depotId + '.manifest', blob);
+                }
+            } catch (e) {
+                manifestFolder.file('depot_' + m.depotId + '_ERROR.txt', 'Error: ' + e.message);
+            }
+        }
+    }
 
     currentDepots.forEach(function(depot) {
         var safeName = depot.name.replace(/[^a-zA-Z0-9_-]/g, '_');
@@ -285,7 +375,12 @@ async function performSearch() {
     showLoading();
 
     try {
-        var gameData = await fetchSteamData(appId);
+        var gameDataPromise = fetchSteamData(appId);
+        var manifestsPromise = fetchManifests(appId);
+
+        var results = await Promise.all([gameDataPromise, manifestsPromise]);
+        var gameData = results[0];
+        var manifestsData = results[1];
 
         hideLoading();
         currentAppId = appId;
@@ -297,7 +392,7 @@ async function performSearch() {
         };
 
         gameName.textContent = gameData.name || 'Sin nombre';
-        gameDeveloper.textContent = gameData.developors ? 'Desarrollador: ' + gameData.developors.join(', ') : '';
+        gameDeveloper.textContent = gameData.developers ? 'Desarrollador: ' + gameData.developers.join(', ') : '';
         gamePublisher.textContent = gameData.publishers ? 'Publisher: ' + gameData.publishers.join(', ') : '';
         gameReleaseDate.textContent = gameData.release_date ? gameData.release_date.date : '';
 
@@ -306,7 +401,7 @@ async function performSearch() {
         infoState.textContent = gameData.is_free ? 'Gratuito' : (gameData.price_overview ? gameData.price_overview.final_formatted : 'N/A');
 
         buildSources(appId);
-        buildDepotsList(appId, gameData);
+        buildDepotsList(appId, gameData, manifestsData);
 
         resultsEl.classList.remove('hidden');
         welcomeEl.classList.add('hidden');

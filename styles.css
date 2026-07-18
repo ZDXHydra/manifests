@@ -600,6 +600,55 @@ footer {
     color: var(--accent-hover);
 }
 
+.depots-notice-success {
+    background: rgba(76, 175, 80, 0.1);
+    border-color: var(--success);
+}
+
+.manifests-found {
+    color: var(--success);
+    font-weight: 600;
+}
+
+.depot-status {
+    display: block;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+.depot-status-ok {
+    color: var(--success);
+}
+
+.depot-status-error {
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.btn-download-manifest {
+    padding: 0.4rem 1rem;
+    font-size: 0.8rem;
+    border: none;
+    border-radius: 6px;
+    background: var(--success);
+    color: var(--text-bright);
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.btn-download-manifest::before {
+    content: '\uD83D\uDCE5';
+}
+
+.btn-download-manifest:hover {
+    background: #43a047;
+}
+
 @media (max-width: 768px) {
     .depots-toolbar {
         flex-direction: column;
