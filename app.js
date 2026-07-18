@@ -25,11 +25,6 @@ const communitySources = document.getElementById('communitySources');
 const downloadTools = document.getElementById('downloadTools');
 const manifestsList = document.getElementById('manifestsList');
 
-let currentAppId = null;
-let currentGameName = null;
-let currentDepots = [];
-let depotDataMap = {};
-
 function showError(msg) {
     errorEl.textContent = msg;
     errorEl.classList.remove('hidden');
@@ -51,9 +46,9 @@ function hideLoading() {
 
 function formatBytes(bytes) {
     if (!bytes) return 'N/A';
-    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-    let i = 0;
-    let size = bytes;
+    var units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    var i = 0;
+    var size = bytes;
     while (size >= 1024 && i < units.length - 1) {
         size /= 1024;
         i++;
@@ -61,123 +56,22 @@ function formatBytes(bytes) {
     return size.toFixed(2) + ' ' + units[i];
 }
 
-function downloadFile(filename, content, mimeType) {
-    const blob = new Blob([content], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-}
-
-function downloadDepotJson(depotId, depot) {
-    const data = {
-        appId: currentAppId,
-        gameName: currentGameName,
-        depotId: depotId,
-        depotName: depot.name || 'Depot ' + depotId,
-        maxSize: depot.maxsize || null,
-        maxSizeFormatted: depot.maxsize ? formatBytes(depot.maxsize) : 'N/A',
-        config: depot.config || {},
-        branching: depot.branches || {},
-        timestamp: new Date().toISOString(),
-        steamCmdCommand: 'steamcmd +login anonymous +download_depot ' + currentAppId + ' ' + depotId + ' +quit',
-        depotDownloaderCommand: 'dotnet DepotDownloader.dll -app ' + currentAppId + ' -depot ' + depotId
-    };
-    const json = JSON.stringify(data, null, 2);
-    const safeName = (depot.name || 'depot_' + depotId).replace(/[^a-zA-Z0-9_-]/g, '_');
-    downloadFile(safeName + '_' + depotId + '.json', json, 'application/json');
-}
-
-async function downloadAllDepotsZip() {
-    if (currentDepots.length === 0) return;
-
-    if (typeof JSZip === 'undefined') {
-        showError('JSZip no se cargo. Recarga la pagina e intenta de nuevo.');
-        return;
-    }
-
-    const zip = new JSZip();
-    const folder = zip.folder('depots_' + currentAppId + '_' + (currentGameName || 'unknown').replace(/[^a-zA-Z0-9]/g, '_'));
-
-    currentDepots.forEach(function(entry) {
-        const depotId = entry[0];
-        const depot = entry[1];
-        const depotName = depot.name || 'depot_' + depotId;
-        const safeName = depotName.replace(/[^a-zA-Z0-9_-]/g, '_');
-
-        const data = {
-            appId: currentAppId,
-            gameName: currentGameName,
-            depotId: depotId,
-            depotName: depotName,
-            maxSize: depot.maxsize || null,
-            maxSizeFormatted: depot.maxsize ? formatBytes(depot.maxsize) : 'N/A',
-            config: depot.config || {},
-            branching: depot.branches || {},
-            timestamp: new Date().toISOString(),
-            steamCmdCommand: 'steamcmd +login anonymous +download_depot ' + currentAppId + ' ' + depotId + ' +quit',
-            depotDownloaderCommand: 'dotnet DepotDownloader.dll -app ' + currentAppId + ' -depot ' + depotId
-        };
-
-        folder.file(safeName + '_' + depotId + '.json', JSON.stringify(data, null, 2));
-    });
-
-    const readme = [
-        '# Steam Depots - ' + (currentGameName || 'Unknown'),
-        '# App ID: ' + currentAppId,
-        '# Total Depots: ' + currentDepots.length,
-        '# Generated: ' + new Date().toISOString(),
-        '',
-        '## Descargar contenido real de los depots:',
-        '',
-        '### Opcion 1: SteamCMD',
-        '1. Descarga SteamCMD de: https://developer.valvesoftware.com/wiki/SteamCMD',
-        '2. Ejecuta el comando de cada depot en su archivo JSON',
-        '',
-        '### Opcion 2: DepotDownloader',
-        '1. Descarga de: https://github.com/SteamRE/DepotDownloader/releases',
-        '2. Ejecuta: dotnet DepotDownloader.dll -app ' + currentAppId + ' -depot <DEPOT_ID>',
-        '',
-        '### Nota:',
-        'Algunos juegos requieren autenticacion con tu cuenta de Steam.',
-        'Los juegos gratuitos suelen funcionar con login anonymous.'
-    ].join('\n');
-
-    folder.file('README.txt', readme);
-
-    const content = await zip.generateAsync({ type: 'blob' });
-    const url = URL.createObjectURL(content);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'depots_' + currentAppId + '.zip';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-}
-
 function buildSourceCard(icon, name, type, typeLabel, desc, url) {
-    return `
-        <div class="source-card">
-            <div class="source-header">
-                <div class="source-icon">${icon}</div>
-                <div>
-                    <div class="source-name">${name}</div>
-                    <span class="source-type type-${type}">${typeLabel}</span>
-                </div>
-            </div>
-            <div class="source-desc">${desc}</div>
-            <a href="${url}" target="_blank" rel="noopener noreferrer">Ir a fuente</a>
-        </div>
-    `;
+    return '<div class="source-card">' +
+        '<div class="source-header">' +
+            '<div class="source-icon">' + icon + '</div>' +
+            '<div>' +
+                '<div class="source-name">' + name + '</div>' +
+                '<span class="source-type type-' + type + '">' + typeLabel + '</span>' +
+            '</div>' +
+        '</div>' +
+        '<div class="source-desc">' + desc + '</div>' +
+        '<a href="' + url + '" target="_blank" rel="noopener noreferrer">Ir a fuente</a>' +
+    '</div>';
 }
 
 function buildOfficialSources(appId) {
-    const sources = [
+    var sources = [
         {
             icon: '\uD83C\uDFAE',
             name: 'Steam Store',
@@ -380,9 +274,6 @@ async function performSearch() {
 
         hideLoading();
 
-        currentAppId = appId;
-        currentGameName = gameData.name;
-
         gameHeaderImage.src = 'https://cdn.akamai.steamstatic.com/steam/apps/' + appId + '/header.jpg';
         gameHeaderImage.onerror = function() {
             this.src = 'https://cdn.cloudflare.steamstatic.com/steam/apps/' + appId + '/header.jpg';
@@ -405,45 +296,27 @@ async function performSearch() {
 
         if (depots && Object.keys(depots).length > 0) {
             var depotEntries = Object.entries(depots).filter(function(entry) { return entry[0] !== '228980'; });
-            currentDepots = depotEntries;
-            depotDataMap = {};
-            depotEntries.forEach(function(entry) { depotDataMap[entry[0]] = entry[1]; });
             infoDepots.textContent = depotEntries.length;
 
             if (depotEntries.length > 0) {
-                var html = '<div class="depots-toolbar">';
-                html += '<span class="depots-count">' + depotEntries.length + ' depot(s) encontrado(s)</span>';
-                html += '<button class="btn-download-all" onclick="downloadAllDepotsZip()">Descargar Todos (.zip)</button>';
-                html += '</div>';
-
-                html += depotEntries.map(function(entry) {
+                manifestsList.innerHTML = depotEntries.map(function(entry) {
                     var depotId = entry[0];
                     var depot = entry[1];
                     var depotName = depot.name || 'Depot ' + depotId;
                     var depotSize = depot.maxsize ? formatBytes(depot.maxsize) : 'Tamano no disponible';
-                    var isDLC = depot.config && depot.config.installonly;
 
-                    html += '<div class="manifest-item">';
-                    html += '<div class="depot-info">';
-                    html += '<span class="depot-name">' + depotName + (isDLC ? ' <span class="badge-dlc">DLC</span>' : '') + '</span>';
-                    html += '<span class="depot-id">Depot ID: ' + depotId + '</span>';
-                    if (depot.config && depot.config.launch) {
-                        html += '<span class="depot-config">Config: ' + JSON.stringify(depot.config).substring(0, 80) + '...</span>';
-                    }
-                    html += '</div>';
-                    html += '<div class="depot-actions">';
-                    html += '<span class="depot-size">' + depotSize + '</span>';
-                    html += '<button class="btn-download" onclick="downloadDepotJson(\'' + depotId + '\', depotDataMap[\'' + depotId + '\'])">Descargar .json</button>';
-                    html += '</div>';
-                    html += '</div>';
+                    return '<div class="manifest-item">' +
+                        '<div class="depot-info">' +
+                            '<span class="depot-name">' + depotName + '</span>' +
+                            '<span class="depot-id">Depot ID: ' + depotId + '</span>' +
+                        '</div>' +
+                        '<span class="depot-size">' + depotSize + '</span>' +
+                    '</div>';
                 }).join('');
-
-                manifestsList.innerHTML = html;
             } else {
                 manifestsList.innerHTML = '<div class="no-depots">No se encontraron depots disponibles para este juego.</div>';
             }
         } else {
-            currentDepots = [];
             infoDepots.textContent = 'N/A';
             manifestsList.innerHTML = '<div class="no-depots">La informacion de depots no esta disponible via la API publica.<br>Visita <a href="https://steamdb.info/app/' + appId + '/depots/" target="_blank">SteamDB</a> para ver los depots.</div>';
         }
