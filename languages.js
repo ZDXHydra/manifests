@@ -20,7 +20,10 @@ var LANGUAGES = {
     "dl_toast": "All files downloaded successfully.",
     "search": "Search",
     "games": "Games",
-    "language": "Language"
+    "language": "Language",
+    "invalid_id": "Enter a valid App ID.",
+    "error_search": "Search error.",
+    "jszip_error": "JSZip failed to load. Reload the page."
   }},
   "es": { "name": "Español", "flag": "🇪🇸", "t": {
     "subtitle": "Busca y descarga archivos .manifest de cualquier juego de Steam",
@@ -43,7 +46,10 @@ var LANGUAGES = {
     "dl_toast": "Todos los archivos se descargaron correctamente.",
     "search": "Buscar",
     "games": "Juegos",
-    "language": "Idioma"
+    "language": "Idioma",
+    "invalid_id": "Ingresa un App ID valido.",
+    "error_search": "Error al buscar.",
+    "jszip_error": "JSZip no se cargo. Recarga la pagina."
   }},
   "ca": { "name": "Català", "flag": "🏴", "t": {
     "subtitle": "Busca i descarrega fitxers .manifest de qualsevol joc de Steam",
@@ -66,7 +72,10 @@ var LANGUAGES = {
     "dl_t": "Tots els fitxers s'han descarregat correctament.",
     "search": "Cercar",
     "games": "Jocs",
-    "language": "Idioma"
+    "language": "Idioma",
+    "invalid_id": "Introdueix un App ID valid.",
+    "error_search": "Error al cercar.",
+    "jszip_error": "JSZip no s'ha carregat. Recarrega la pagina."
   }},
   "eu": { "name": "Euskara", "flag": "🏴", "t": {
     "subtitle": "Bilatu eta deskargatu .manifest fitxeroak edozein Steam jokotik",
@@ -89,7 +98,10 @@ var LANGUAGES = {
     "dl_t": "Fitxero guztiak ondo deskargatu dira.",
     "search": "Bilatu",
     "games": "Jokoak",
-    "language": "Hizkuntza"
+    "language": "Hizkuntza",
+    "invalid_id": "Sartu App ID baliozko bat.",
+    "error_search": "Bilaketa errorea.",
+    "jszip_error": "JSZip kargatu ez. Berriz kargatu orria."
   }},
   "gl": { "name": "Galego", "flag": "🏴", "t": {
     "subtitle": "Busca e descarga ficheiros .manifest de calquera xogo de Steam",
@@ -112,30 +124,36 @@ var LANGUAGES = {
     "dl_t": "Todos os ficheiros descargaronse correctamente.",
     "search": "Buscar",
     "games": "Xogos",
-    "language": "Idioma"
+    "language": "Idioma",
+    "invalid_id": "Introduce un App ID valido.",
+    "error_search": "Erro na busqueda.",
+    "jszip_error": "JSZip non se cargo. Recarga a pagina."
   }},
-  "an": { "name": "Andaluz", "flag": "🏴", "t": {
-    "subtitle": "Busca y descarga archivos .manifest de cualquier juego de Steam",
-    "search_placeholder": "Steam App ID (ej: 730)",
-    "fetch_btn": "Buscar",
+  "an": { "name": "Andaluz", "flag": "🟢", "t": {
+    "subtitle": "Busca y descarga lo' archivo' .manifest de na' juego de Steam, ¡allah!...",
+    "search_placeholder": "El App ID, ¿cuáe? (ej: 730)",
+    "fetch_btn": "¡A buscalo!",
     "welcome_title": "Steam Manifest Finder",
-    "welcome_desc": "Meté un App ID pa buscar archivos .manifest en ManifestHub.",
-    "welcome_sub": "Soporta más de 62.000 xuegos y DLCs.",
-    "popular_label": "Populares:",
-    "trending_title": "Xuegos en Tendencia",
-    "loading": "Buscando manifests...",
-    "not_found": "No se encontraron manifests pal App ID",
-    "not_found_hint": "Todavía no están disponibles pa esti xuego, espéraos.",
-    "download_all": "Descargar Too (.zip)",
-    "downloading": "Descargando...",
-    "manifests": "manifest(s)",
+    "welcome_desc": "Meté un App ID pa buscar archivo' .manifest en ManifestHub, ¡vamos!",
+    "welcome_sub": "Soporta más de 62.000 juego' y DLC, ¡que son na'!",
+    "popular_label": "Los más vistos:",
+    "trending_title": "Lo' que van aora",
+    "loading": "Buscando los manifest, espérate un poco...",
+    "not_found": "No hay na' de manifests pal App ID",
+    "not_found_hint": "Pue que aún no los hayan puesto, ¡espérate que ya llegan!",
+    "download_all": "Descargar too (.zip)",
+    "downloading": "Descargando... ¡va que va!",
+    "manifests": "manifest",
     "sources": "fuente(s)",
-    "btn_download": "Descargar",
-    "footer": "Archivos manifest dende ManifestHub (GitHub). No guardamos archivos directamente.",
-    "dl_t": "Too descargao bien.",
+    "btn_download": "¡Descárgalo!",
+    "footer": "Los archivo' manifest son de ManifestHub (GitHub). Nosotros no guardamos na', ¡eh!",
+    "dl_t": "¡Too descargao! ¡A disfrutalo, tío!",
     "search": "Buscar",
-    "games": "Xuegos",
-    "language": "Idioma"
+    "games": "Juego'",
+    "language": "El idioma",
+    "invalid_id": "El App ID tien que ser un numero, ¡no me vengas con na'!",
+    "error_search": "Se ha liao pavo al buscar, ¡otra vez!",
+    "jszip_error": "No se ha cargo el JSZip. Dale a la pagina otra ve', ¡porfa!"
   }},
   "fr": { "name": "Français", "flag": "🇫🇷", "t": {
     "subtitle": "Trouvez et téléchargez les fichiers .manifest de n'importe quel jeu Steam",
@@ -158,7 +176,10 @@ var LANGUAGES = {
     "dl_t": "Tous les fichiers ont été téléchargés avec succès.",
     "search": "Rechercher",
     "games": "Jeux",
-    "language": "Langue"
+    "language": "Langue",
+    "invalid_id": "Entrez un App ID valide.",
+    "error_search": "Erreur de recherche.",
+    "jszip_error": "JSZip na pas pu etre charge. Rechargez la page."
   }},
   "de": { "name": "Deutsch", "flag": "🇩🇪", "t": {
     "subtitle": "Finden und laden Sie .manifest-Dateien jedes Steam-Spiels herunter",
@@ -181,7 +202,10 @@ var LANGUAGES = {
     "dl_t": "Alle Dateien erfolgreich heruntergeladen.",
     "search": "Suchen",
     "games": "Spiele",
-    "language": "Sprache"
+    "language": "Sprache",
+    "invalid_id": "Geben Sie eine gultige App ID ein.",
+    "error_search": "Suchfehler.",
+    "jszip_error": "JSZip konnte nicht geladen werden. Seite neu laden."
   }},
   "it": { "name": "Italiano", "flag": "🇮🇹", "t": {
     "subtitle": "Trova e scarica i file .manifest di qualsiasi gioco Steam",
@@ -204,7 +228,10 @@ var LANGUAGES = {
     "dl_t": "Tutti i file scaricati con successo.",
     "search": "Cerca",
     "games": "Giochi",
-    "language": "Lingua"
+    "language": "Lingua",
+    "invalid_id": "Inserisci un App ID valido.",
+    "error_search": "Errore di ricerca.",
+    "jszip_error": "JSZip non si e caricato. Ricarica la pagina."
   }},
   "pt": { "name": "Português", "flag": "🇵🇹", "t": {
     "subtitle": "Encontre e descarregue ficheiros .manifest de qualquer jogo Steam",
@@ -227,7 +254,10 @@ var LANGUAGES = {
     "dl_t": "Todos os ficheiros transferidos com sucesso.",
     "search": "Pesquisar",
     "games": "Jogos",
-    "language": "Idioma"
+    "language": "Idioma",
+    "invalid_id": "Introduza um App ID valido.",
+    "error_search": "Erro ao pesquisar.",
+    "jszip_error": "JSZip falhou ao carregar. Recarregue a pagina."
   }},
   "br": { "name": "Português (BR)", "flag": "🇧🇷", "t": {
     "subtitle": "Encontre e baixe arquivos .manifest de qualquer jogo da Steam",
@@ -250,7 +280,10 @@ var LANGUAGES = {
     "dl_t": "Todos os arquivos baixados com sucesso.",
     "search": "Buscar",
     "games": "Jogos",
-    "language": "Idioma"
+    "language": "Idioma",
+    "invalid_id": "Digite um App ID valido.",
+    "error_search": "Erro ao buscar.",
+    "jszip_error": "Falha ao carregar o JSZip. Recarregue a pagina."
   }},
   "nl": { "name": "Nederlands", "flag": "🇳🇱", "t": {
     "subtitle": "Zoek en download .manifest-bestanden van elk Steam-spel",
@@ -273,7 +306,10 @@ var LANGUAGES = {
     "dl_t": "Alle bestanden succesvol gedownload.",
     "search": "Zoeken",
     "games": "Spellen",
-    "language": "Taal"
+    "language": "Taal",
+    "invalid_id": "Voer een geldige App ID in.",
+    "error_search": "Zoekfout.",
+    "jszip_error": "JSZip kon niet laden. Vernieuw de pagina."
   }},
   "pl": { "name": "Polski", "flag": "🇵🇱", "t": {
     "subtitle": "Znajdz i pobierz pliki .manifest z dowolnej gry Steam",
@@ -296,7 +332,10 @@ var LANGUAGES = {
     "dl_t": "Wszystkie pliki pobrane pomyślnie.",
     "search": "Szukaj",
     "games": "Gry",
-    "language": "Język"
+    "language": "Język",
+    "invalid_id": "Wprowadz poprawny App ID.",
+    "error_search": "Blad wyszukiwania.",
+    "jszip_error": "JSZip nie mogl zostac zaladowany. Odswiez strone."
   }},
   "ru": { "name": "Русский", "flag": "🇷🇺", "t": {
     "subtitle": "Найдите и скачайте файлы .manifest из любой игры Steam",
@@ -319,7 +358,10 @@ var LANGUAGES = {
     "dl_t": "Все файлы успешно загружены.",
     "search": "Найти",
     "games": "Игры",
-    "language": "Язык"
+    "language": "Язык",
+    "invalid_id": "Vvedite pravilnyy App ID.",
+    "error_search": "Oshibka poiska.",
+    "jszip_error": "JSZip ne udalos zagruzit. Obnovite stranitsu."
   }},
   "uk": { "name": "Українська", "flag": "🇺🇦", "t": {
     "subtitle": "Знайдіть та завантажте файли .manifest з будь-якої гри Steam",
@@ -342,7 +384,10 @@ var LANGUAGES = {
     "dl_t": "Усі файли успішно завантажено.",
     "search": "Знайти",
     "games": "Ігри",
-    "language": "Мова"
+    "language": "Мова",
+    "invalid_id": "Vvedit pravyl'nyy App ID.",
+    "error_search": "Pomylka poshuku.",
+    "jszip_error": "JSZip ne vdalosya zavantazhyty. Onovit storinku."
   }},
   "tr": { "name": "Türkçe", "flag": "🇹🇷", "t": {
     "subtitle": "Herhangi bir Steam oyunundan .manifest dosyalarını bulun ve indirin",
@@ -365,7 +410,10 @@ var LANGUAGES = {
     "dl_t": "Tüm dosyalar başarıyla indirildi.",
     "search": "Ara",
     "games": "Oyunlar",
-    "language": "Dil"
+    "language": "Dil",
+    "invalid_id": "Gecerli bir App ID girin.",
+    "error_search": "Arama hatasi.",
+    "jszip_error": "JSZip yuklenemedi. Sayfayi yenileyin."
   }},
   "ar": { "name": "العربية", "flag": "🇸🇦", "t": {
     "subtitle": "ابحث وقم بتنزيل ملفات .manifest من أي لعبة على Steam",
@@ -388,7 +436,10 @@ var LANGUAGES = {
     "dl_t": "تم تنزيل جميع الملفات بنجاح.",
     "search": "بحث",
     "games": "ألعاب",
-    "language": "اللغة"
+    "language": "اللغة",
+    "invalid_id": "أدخل App ID صالح.",
+    "error_search": "خطأ في البحث.",
+    "jszip_error": "فشل تحميل JSZip. أعد تحميل الصفحة."
   }},
   "zh": { "name": "中文", "flag": "🇨🇳", "t": {
     "subtitle": "查找并下载任何Steam游戏的.manifest文件",
@@ -411,7 +462,10 @@ var LANGUAGES = {
     "dl_t": "所有文件下载成功。",
     "search": "搜索",
     "games": "游戏",
-    "language": "语言"
+    "language": "语言",
+    "invalid_id": "请输入有效的App ID。",
+    "error_search": "搜索错误。",
+    "jszip_error": "JSZip加载失败，请刷新页面。"
   }},
   "tw": { "name": "繁體中文", "flag": "🇹🇼", "t": {
     "subtitle": "搜尋並下載任何Steam遊戲的.manifest檔案",
@@ -434,7 +488,10 @@ var LANGUAGES = {
     "dl_t": "所有檔案下載成功。",
     "search": "搜尋",
     "games": "遊戲",
-    "language": "語言"
+    "language": "語言",
+    "invalid_id": "請輸入有效的App ID。",
+    "error_search": "搜尋錯誤。",
+    "jszip_error": "JSZip載入失敗，請重新整理頁面。"
   }},
   "ja": { "name": "日本語", "flag": "🇯🇵", "t": {
     "subtitle": "Steamゲームの.manifestファイルを検索してダウンロード",
@@ -457,7 +514,10 @@ var LANGUAGES = {
     "dl_t": "すべてのファイルのダウンロードに成功しました。",
     "search": "検索",
     "games": "ゲーム",
-    "language": "言語"
+    "language": "言語",
+    "invalid_id": "有効なApp IDを入力してください。",
+    "error_search": "検索エラー。",
+    "jszip_error": "JSZipの読み込みに失敗しました。ページを再読み込みしてください。"
   }},
   "ko": { "name": "한국어", "flag": "🇰🇷", "t": {
     "subtitle": "모든 Steam 게임의 .manifest 파일을 찾고 다운로드하세요",
@@ -480,7 +540,10 @@ var LANGUAGES = {
     "dl_t": "모든 파일이 성공적으로 다운로드되었습니다.",
     "search": "검색",
     "games": "게임",
-    "language": "언어"
+    "language": "언어",
+    "invalid_id": "유효한 App ID를 입력하세요.",
+    "error_search": "검색 오류.",
+    "jszip_error": "JSZip 로드 실패. 페이지를 새로고침하세요."
   }},
   "hi": { "name": "हिन्दी", "flag": "🇮🇳", "t": {
     "subtitle": "किसी भी Steam गेम से .manifest फ़ाइलें खोजें और डाउनलोड करें",
@@ -503,7 +566,10 @@ var LANGUAGES = {
     "dl_t": "सभी फ़ाइलें सफलतापूर्वक डाउनलोड हो गईं।",
     "search": "खोजें",
     "games": "गेम",
-    "language": "भाषा"
+    "language": "भाषा",
+    "invalid_id": "एक मान्य App ID दर्ज करें।",
+    "error_search": "खोज त्रुटि।",
+    "jszip_error": "JSZip लोड नहीं हो सका। पेज रीलोड करें।"
   }},
   "id": { "name": "Indonesia", "flag": "🇮🇩", "t": {
     "subtitle": "Cari dan unduh file .manifest dari game Steam mana pun",
@@ -526,7 +592,10 @@ var LANGUAGES = {
     "dl_t": "Semua file berhasil diunduh.",
     "search": "Cari",
     "games": "Game",
-    "language": "Bahasa"
+    "language": "Bahasa",
+    "invalid_id": "Masukkan App ID yang valid.",
+    "error_search": "Kesalahan pencarian.",
+    "jszip_error": "JSZip gagal dimuat. Muat ulang halaman."
   }},
   "vi": { "name": "Tiếng Việt", "flag": "🇻🇳", "t": {
     "subtitle": "Tìm và tải file .manifest từ bất kỳ game Steam nào",
@@ -549,7 +618,10 @@ var LANGUAGES = {
     "dl_t": "Tất cả file đã tải thành công.",
     "search": "Tìm",
     "games": "Game",
-    "language": "Ngôn ngữ"
+    "language": "Ngôn ngữ",
+    "invalid_id": "Nhap App ID hop le.",
+    "error_search": "Loi tim kiem.",
+    "jszip_error": "JSZip tai that bai. Tai lai trang."
   }},
   "th": { "name": "ไทย", "flag": "🇹🇭", "t": {
     "subtitle": "ค้นหาและดาวน์โหลดไฟล์ .manifest จากเกม Steam ใดก็ได้",
@@ -572,7 +644,10 @@ var LANGUAGES = {
     "dl_t": "ดาวน์โหลดไฟล์ทั้งหมดสำเร็จ",
     "search": "ค้นหา",
     "games": "เกม",
-    "language": "ภาษา"
+    "language": "ภาษา",
+    "invalid_id": "กรุณาใส่ App ID ที่ถูกต้อง",
+    "error_search": "เกิดข้อผิดพลาดในการค้นหา",
+    "jszip_error": "JSZip โหลดไม่สำเร็จ กรุณาโหลดหน้าใหม่"
   }},
   "sv": { "name": "Svenska", "flag": "🇸🇪", "t": {
     "subtitle": "Hitta och ladda ner .manifest-filer från alla Steam-spel",
@@ -595,7 +670,10 @@ var LANGUAGES = {
     "dl_t": "Alla filer laddades ner.",
     "search": "Sök",
     "games": "Spel",
-    "language": "Språk"
+    "language": "Språk",
+    "invalid_id": "Ange ett giltigt App ID.",
+    "error_search": "Sökfel.",
+    "jszip_error": "JSZip kunde inte laddas. Ladda om sidan."
   }},
   "da": { "name": "Dansk", "flag": "🇩🇰", "t": {
     "subtitle": "Find og download .manifest-filer fra ethvert Steam-spil",
@@ -618,7 +696,10 @@ var LANGUAGES = {
     "dl_t": "Alle filer downloadet succesfuldt.",
     "search": "Søg",
     "games": "Spil",
-    "language": "Sprog"
+    "language": "Sprog",
+    "invalid_id": "Indtast en gyldig App ID.",
+    "error_search": "Søgningsfejl.",
+    "jszip_error": "JSZip kunne ikke indlaeses. Genindlaes siden."
   }},
   "no": { "name": "Norsk", "flag": "🇳🇴", "t": {
     "subtitle": "Finn og last ned .manifest-filer fra ethvert Steam-spill",
@@ -641,7 +722,10 @@ var LANGUAGES = {
     "dl_t": "Alle filer lastet ned.",
     "search": "Søk",
     "games": "Spill",
-    "language": "Språk"
+    "language": "Språk",
+    "invalid_id": "Skriv inn en gyldig App ID.",
+    "error_search": "Søkefeil.",
+    "jszip_error": "JSZip kunne ikke lastes inn. Last inn siden pa nytt."
   }},
   "fi": { "name": "Suomi", "flag": "🇫🇮", "t": {
     "subtitle": "Etsi ja lataa .manifest-tiedostoja mistä tahansa Steam-pelistä",
@@ -664,7 +748,10 @@ var LANGUAGES = {
     "dl_t": "Kaikki tiedostot ladattu onnistuneesti.",
     "search": "Hae",
     "games": "Pelit",
-    "language": "Kieli"
+    "language": "Kieli",
+    "invalid_id": "Syota kelvollinen App ID.",
+    "error_search": "Hakuvirhe.",
+    "jszip_error": "JSZipin lataaminen epaonnistui. Lataa sivu uudelleen."
   }},
   "el": { "name": "Ελληνικά", "flag": "🇬🇷", "t": {
     "subtitle": "Εύρεση και λήψη αρχείων .manifest από οποιοδήποτε παιχνίδι Steam",
@@ -687,7 +774,10 @@ var LANGUAGES = {
     "dl_t": "Όλα τα αρχία λήφθηκαν με επιτυχία.",
     "search": "Αναζήτηση",
     "games": "Παιχνίδια",
-    "language": "Γλώσσα"
+    "language": "Γλώσσα",
+    "invalid_id": "Εισάγετε έγκυρο App ID.",
+    "error_search": "Σφάλμα αναζήτησης.",
+    "jszip_error": "Το JSZip απέτυχε να φορτωθεί. Επαναφορτώστε τη σελίδα."
   }},
   "cs": { "name": "Čeština", "flag": "🇨🇿", "t": {
     "subtitle": "Najděte a stáhněte soubory .manifest z jakékoli hry na Steamu",
@@ -710,7 +800,10 @@ var LANGUAGES = {
     "dl_t": "Všechny soubory úspěšně staženy.",
     "search": "Hledat",
     "games": "Hry",
-    "language": "Jazyk"
+    "language": "Jazyk",
+    "invalid_id": "Zadejte platne App ID.",
+    "error_search": "Chyba vyhledavani.",
+    "jszip_error": "JSZip se nepodarilo nacist. Obnovte stranku."
   }},
   "hu": { "name": "Magyar", "flag": "🇭🇺", "t": {
     "subtitle": "Keress és tölts le .manifest fájlokat bármely Steam játékból",
@@ -733,7 +826,10 @@ var LANGUAGES = {
     "dl_t": "Minden fájl sikeresen letöltve.",
     "search": "Keresés",
     "games": "Játékok",
-    "language": "Nyelv"
+    "language": "Nyelv",
+    "invalid_id": "Adjon meg ervenyes App ID-t.",
+    "error_search": "Keresesi hiba.",
+    "jszip_error": "JSZip nem toltodott be. Toltse ujra az oldalt."
   }},
   "ro": { "name": "Română", "flag": "🇷🇴", "t": {
     "subtitle": "Găsiți și descărcați fișiere .manifest din orice joc Steam",
@@ -756,7 +852,10 @@ var LANGUAGES = {
     "dl_t": "Toate fișierele au fost descărcate cu succes.",
     "search": "Căutare",
     "games": "Jocuri",
-    "language": "Limbă"
+    "language": "Limbă",
+    "invalid_id": "Introduceti un App ID valid.",
+    "error_search": "Eroare de cautare.",
+    "jszip_error": "JSZip nu s-a incarcat. Reincarcati pagina."
   }},
   "sk": { "name": "Slovenčina", "flag": "🇸🇰", "t": {
     "subtitle": "Nájdite a stiahnite súbory .manifest z akejkoľvek hry na Steame",
@@ -779,7 +878,10 @@ var LANGUAGES = {
     "dl_t": "Všetky súbory úspešne stiahnuté.",
     "search": "Hľadať",
     "games": "Hry",
-    "language": "Jazyk"
+    "language": "Jazyk",
+    "invalid_id": "Zadajte platne App ID.",
+    "error_search": "Chyba vyhladavania.",
+    "jszip_error": "JSZip sa nepodarilo nacitat. Obnovte stranku."
   }},
   "hr": { "name": "Hrvatski", "flag": "🇭🇷", "t": {
     "subtitle": "Pronađite i preuzmite .manifest datoteke iz bilo koje Steam igre",
@@ -802,7 +904,10 @@ var LANGUAGES = {
     "dl_t": "Sve datoteke uspješno preuzete.",
     "search": "Traži",
     "games": "Igre",
-    "language": "Jezik"
+    "language": "Jezik",
+    "invalid_id": "Unesite valjani App ID.",
+    "error_search": "Greska pretrage.",
+    "jszip_error": "JSZip se nije mogao ucitati. Osvjezite stranicu."
   }},
   "sr": { "name": "Српски", "flag": "🇷🇸", "t": {
     "subtitle": "Пронађите и преузмите .manifest датотеке из било које Steam игре",
@@ -825,7 +930,10 @@ var LANGUAGES = {
     "dl_t": "Све датотеке успешно преузете.",
     "search": "Претражи",
     "games": "Игре",
-    "language": "Језик"
+    "language": "Језик",
+    "invalid_id": "Unesite ispravan App ID.",
+    "error_search": "Greska pretrage.",
+    "jszip_error": "JSZip nije mogao da se ucita. Osvezite stranicu."
   }},
   "bg": { "name": "Български", "flag": "🇧🇬", "t": {
     "subtitle": "Намерете и изтеглете .manifest файлове от всяка Steam игра",
@@ -848,7 +956,10 @@ var LANGUAGES = {
     "dl_t": "Всички файлове успешно изтеглени.",
     "search": "Търсене",
     "games": "Игри",
-    "language": "Език"
+    "language": "Език",
+    "invalid_id": "Vavedete validen App ID.",
+    "error_search": "Greshka v tarseneto.",
+    "jszip_error": "JSZip ne uspe da se zaredi. Osvete stranicata."
   }},
   "sl": { "name": "Slovenščina", "flag": "🇸🇮", "t": {
     "subtitle": "Poiščite in prenesite .manifest datoteke iz katerekoli Steam igre",
@@ -871,7 +982,10 @@ var LANGUAGES = {
     "dl_t": "Vse datoteke uspešno prenesene.",
     "search": "Iskanje",
     "games": "Igre",
-    "language": "Jezik"
+    "language": "Jezik",
+    "invalid_id": "Vnesite veljaven App ID.",
+    "error_search": "Napaka iskanja.",
+    "jszip_error": "JSZip ni mogel naložiti. Osvežite stran."
   }},
   "lt": { "name": "Lietuvių", "flag": "🇱🇹", "t": {
     "subtitle": "Raskite ir atsisiųskite .manifest failus iš bet kurio Steam žaidimo",
@@ -894,7 +1008,10 @@ var LANGUAGES = {
     "dl_t": "Visi failai sėkmingai atsisiųsti.",
     "search": "Ieškoti",
     "games": "Žaidimai",
-    "language": "Kalba"
+    "language": "Kalba",
+    "invalid_id": "Iveskite galiojanti App ID.",
+    "error_search": "Paieskos klaida.",
+    "jszip_error": "JSZip nepavyko ikelti. Atnaujinkite psl."
   }},
   "lv": { "name": "Latviešu", "flag": "🇱🇻", "t": {
     "subtitle": "Atrodiet un lejupielādējiet .manifest failus no jebkura Steam spēles",
@@ -917,7 +1034,10 @@ var LANGUAGES = {
     "dl_t": "Visi faili veiksmīgi lejupielādēti.",
     "search": "Meklēt",
     "games": "Spēles",
-    "language": "Valoda"
+    "language": "Valoda",
+    "invalid_id": "Ievadiet derigu App ID.",
+    "error_search": "Meklesanas kluda.",
+    "jszip_error": "JSZip neizdevas ieladet. Atjaunojiet lapu."
   }},
   "et": { "name": "Eesti", "flag": "🇪🇪", "t": {
     "subtitle": "Leidke ja laadige alla .manifest failid igast Steam mängust",
@@ -940,7 +1060,10 @@ var LANGUAGES = {
     "dl_t": "Kõik failid edukalt alla laaditud.",
     "search": "Otsi",
     "games": "Mängud",
-    "language": "Keel"
+    "language": "Keel",
+    "invalid_id": "Sisestage kehtiv App ID.",
+    "error_search": "Otsingu viga.",
+    "jszip_error": "JSZip ei saanud laadida. Laadige leht uuesti."
   }},
   "cy": { "name": "Cymraeg", "flag": "🏴", "t": {
     "subtitle": "Canfod a lawrlwytho ffeiliau .manifest o unrhyw gêm Steam",
@@ -963,7 +1086,10 @@ var LANGUAGES = {
     "dl_t": "Mae pob ffeil wedi'i lawrlwytho'n llwyddiannus.",
     "search": "Chwilio",
     "games": "Gemau",
-    "language": "Iaith"
+    "language": "Iaith",
+    "invalid_id": "Rhowch App ID dilys.",
+    "error_search": "Gwall chwilio.",
+    "jszip_error": "Methodd JSZip â llwytho. Ail-lwythwch y dudalen."
   }},
   "ga": { "name": "Gaeilge", "flag": "🇮🇪", "t": {
     "subtitle": "Faigh íoslódáil comhaid .manifest ó aon chluiche Steam",
@@ -986,7 +1112,10 @@ var LANGUAGES = {
     "dl_t": "Íoslódáladh gach comhad go rathúil.",
     "search": "Cuardaigh",
     "games": "Cluichí",
-    "language": "Teanga"
+    "language": "Teanga",
+    "invalid_id": "Cuir isteach App ID baili.",
+    "error_search": "Earraid cuardaigh.",
+    "jszip_error": "Theip ar JSZip a loding. Athluchtaigh an leathanach."
   }},
   "oc": { "name": "Occitan", "flag": "🏴", "t": {
     "subtitle": "Trobar e telecargar fichièrs .manifest de quin jòc Steam que siá",
@@ -1009,9 +1138,12 @@ var LANGUAGES = {
     "dl_t": "Totas los fichièrs telecargats amb succès.",
     "search": "Recercar",
     "games": "Jòcs",
-    "language": "Lenga"
+    "language": "Lenga",
+    "invalid_id": "Entrar un App ID valent.",
+    "error_search": "Error de recèrca.",
+    "jszip_error": "JSZip a pas pogut èsser cargat. Tornatz cargar la pagina."
   }},
-  "br": { "name": "Brezhoneg", "flag": "🏴", "t": {
+  "brb": { "name": "Brezhoneg", "flag": "🏴", "t": {
     "subtitle": "Kavout ha pellgargañ restroù .manifest eus gerioù Steam",
     "search_placeholder": "Steam App ID (e.e. 730)",
     "fetch_btn": "Klask",
@@ -1032,6 +1164,9 @@ var LANGUAGES = {
     "dl_t": "An holl restroù bet pellgarguet mat.",
     "search": "Klask",
     "games": "Gerioù",
-    "language": "Yezh"
+    "language": "Yezh",
+    "invalid_id": "Enankit un App ID mat.",
+    "error_search": "Fazi klask.",
+    "jszip_error": "Ne v ket bet gallet kargañ JSZip. Adkargit ar pagin."
   }}
 };

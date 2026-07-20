@@ -94,7 +94,7 @@ async function fetchManifests(appId) {
 async function doFetch() {
   var appId = els.input.value.trim();
   if (!appId || isNaN(appId) || appId <= 0) {
-    setError('Ingresa un App ID valido.');
+    setError(t('invalid_id'));
     return;
   }
 
@@ -114,7 +114,7 @@ async function doFetch() {
     hide(els.loading);
 
     if (!manifests.found) {
-      setError('No se encontraron manifests para el App ID ' + appId + '. Es posible que aún no estén disponibles para este ID.');
+      setError(t('not_found') + ' ' + appId + '. ' + t('not_found_hint'));
       show(els.welcome);
       return;
     }
@@ -139,15 +139,15 @@ async function doFetch() {
       els.gameMeta.textContent = '';
     }
 
-    els.manifestCount.textContent = manifests.totalManifests + ' manifest(s)';
-    var sourceText = manifests.allSources.length + ' fuente(s)';
+    els.manifestCount.textContent = manifests.totalManifests + ' ' + t('manifests');
+    var sourceText = manifests.allSources.length + ' ' + t('sources');
     els.sourceInfo.textContent = sourceText;
 
     renderFiles(manifests.files);
     show(els.results);
   } catch (err) {
     hide(els.loading);
-    setError(err.message || 'Error al buscar.');
+    setError(err.message || t('error_search'));
     show(els.welcome);
   }
 }
@@ -219,7 +219,7 @@ async function downloadAll() {
   if (!currentData || !currentData.files.length) return;
 
   if (typeof JSZip === 'undefined') {
-    setError('JSZip no se cargo. Recarga la pagina.');
+    setError(t('jszip_error'));
     return;
   }
 
@@ -227,7 +227,7 @@ async function downloadAll() {
   var folderName = currentData.appId + '_manifests';
   var folder = zip.folder(folderName);
 
-  els.downloadAllBtn.textContent = 'Descargando...';
+  els.downloadAllBtn.textContent = t('downloading');
   els.downloadAllBtn.disabled = true;
 
   var toDownload = currentData.files.filter(function(f) { return f.isManifest || f.isLua || f.isVdf; });
@@ -240,7 +240,7 @@ async function downloadAll() {
       return fetch(API + '/download?url=' + encodeURIComponent(f.rawUrl) + '&name=' + encodeURIComponent(f.name))
         .then(function(res) {
           done++;
-          els.downloadAllBtn.textContent = 'Descargando... ' + done + '/' + toDownload.length;
+          els.downloadAllBtn.textContent = t('downloading') + ' ' + done + '/' + toDownload.length;
           if (!res.ok) return null;
           return res.blob().then(function(blob) {
             return { file: f, blob: blob };
@@ -297,7 +297,7 @@ async function downloadAll() {
   var content = await zip.generateAsync({ type: 'blob' });
   downloadBlob(folderName + '.zip', content);
 
-  els.downloadAllBtn.textContent = 'Descargar Todo (.zip)';
+  els.downloadAllBtn.textContent = t('download_all');
   els.downloadAllBtn.disabled = false;
 }
 
@@ -378,6 +378,12 @@ if (!els.welcome.classList.contains('hidden')) {
 }
 
 var currentLang = localStorage.getItem('smf-lang') || 'es';
+
+function t(key) {
+  if (LANGUAGES[currentLang] && LANGUAGES[currentLang].t[key]) return LANGUAGES[currentLang].t[key];
+  if (LANGUAGES['es'] && LANGUAGES['es'].t[key]) return LANGUAGES['es'].t[key];
+  return key;
+}
 
 function setLang(lang) {
   if (!LANGUAGES[lang]) return;
