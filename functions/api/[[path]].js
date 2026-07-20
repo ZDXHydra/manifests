@@ -186,11 +186,11 @@ async function checkSteamtoolsGames(appId) {
     if (data.code !== 0 || !data.data) return null;
     var d = data.data;
     var files = [];
-    if (d.downloadUrl) files.push({ name: appId + '_manifest.zip', rawUrl: d.downloadUrl, isManifest: true, ext: 'zip', size: 0 });
+    if (d.downloadUrl) files.push({ name: appId + '_package.zip', rawUrl: d.downloadUrl, isManifest: false, isZip: true, ext: 'zip', size: 0 });
     if (d.luaUrl) files.push({ name: appId + '.lua', rawUrl: d.luaUrl, isLua: true, ext: 'lua', size: 0 });
     if (d.keyVdfUrl) files.push({ name: 'key.vdf', rawUrl: d.keyVdfUrl, isVdf: true, ext: 'vdf', size: 0 });
     if (files.length === 0) return null;
-    return { source: 'steamtools.games', files: files, manifestCount: files.filter(function(f) { return f.isManifest; }).length, totalCount: files.length };
+    return { source: 'steamtools.games', files: files, manifestCount: 0, totalCount: files.length };
   } catch (e) {
     return null;
   }

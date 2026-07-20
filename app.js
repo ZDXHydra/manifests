@@ -23,6 +23,16 @@ function hide(el) { el.classList.add('hidden'); }
 function setError(msg) { els.error.textContent = msg; show(els.error); }
 function clearError() { hide(els.error); }
 
+function goHome() {
+  hide(els.results);
+  hide(els.error);
+  hide(els.loading);
+  show(els.welcome);
+  els.input.value = '';
+  currentData = null;
+  els.input.focus();
+}
+
 function formatBytes(b) {
   if (!b) return '';
   var u = ['B', 'KB', 'MB', 'GB'];
@@ -139,6 +149,7 @@ function renderFiles(files) {
   var luaFiles = files.filter(function(f) { return f.isLua; });
   var vdfFiles = files.filter(function(f) { return f.isVdf; });
   var jsonFiles = files.filter(function(f) { return f.isJson; });
+  var zipFiles = files.filter(function(f) { return f.isZip; });
 
   var html = '';
 
@@ -170,11 +181,19 @@ function renderFiles(files) {
     html += '</div>';
   }
 
+  if (zipFiles.length > 0) {
+    html += '<div class="file-section">';
+    html += '<h4 class="file-section-title">Paquetes ZIP <span class="file-badge">' + zipFiles.length + '</span></h4>';
+    zipFiles.forEach(function(f) { html += buildFileRow(f, 'zip'); });
+    html += '</div>';
+  }
+
   els.fileList.innerHTML = html;
 }
 
 function buildFileRow(f, type) {
-  var icon = type === 'manifest' ? '\uD83D\uDCE6' : type === 'lua' ? '\uD83D\uDCDC' : type === 'vdf' ? '\uD83D\uDD11' : '\uD83D\uDCC4';
+  var icons = { manifest: '\uD83D\uDCE6', lua: '\uD83D\uDCDC', vdf: '\uD83D\uDD11', json: '\uD83D\uDCC4', zip: '\uD83D\uDCE5' };
+  var icon = icons[type] || '\uD83D\uDCC4';
   var sizeStr = f.size ? formatBytes(f.size) : '';
   var sourceStr = f.source ? ' · ' + f.source : '';
   var escapedUrl = f.rawUrl.replace(/'/g, "\\'");
