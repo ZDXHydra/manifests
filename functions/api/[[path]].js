@@ -27,6 +27,7 @@ export async function onRequest(context) {
   if (path === '/api/steam') return handleSteamApi(url, corsHeaders);
   if (path === '/api/manifests') return handleManifests(url, corsHeaders);
   if (path === '/api/download') return handleDownload(url, corsHeaders);
+  if (path === '/api/trending') return handleTrending(url, corsHeaders);
 
   return jsonResp(corsHeaders, { error: 'Not found' }, 404);
 }
@@ -193,6 +194,53 @@ async function checkSteamtoolsGames(appId) {
     return { source: 'steamtools.games', files: files, manifestCount: 0, totalCount: files.length };
   } catch (e) {
     return null;
+  }
+}
+
+async function handleTrending(url, headers) {
+  var cacheKey = 'trending';
+  try {
+    var cached = await caches.default.match(cacheKey);
+    if (cached) return cached;
+  } catch (e) {}
+
+  try {
+    var res = await fetch('https://store.steampowered.com/api/featuredcategories/?cc=us&l=english', {
+      headers: { 'User-Agent': 'SteamMF/2.0' }
+    });
+    if (!res.ok) return jsonResp(headers, { error: 'Steam API error' }, 502);
+    var data = await res.json();
+
+    var games = [];
+    var seen = {};
+
+    var categories = ['top_sellers', 'new_releases', 'specials'];
+    for (var i = 0; i < categories.length; i++) {
+      var cat = data[categories[i]];
+      if (!cat || !cat.items) continue;
+      for (var j = 0; j < cat.items.length; j++) {
+        var item = cat.items[j];
+        if (seen[item.id]) continue;
+        seen[item.id] = true;
+        if (!item.windows_available) continue;
+        games.push({
+          id: item.id,
+          name: item.name,
+          image: item.large_capsule_image || item.header_image,
+          price: item.final_price || 0,
+          discount: item.discount_percent || 0,
+          originalPrice: item.original_price || 0,
+          currency: item.currency || 'USD'
+        });
+      }
+    }
+
+    var resp = jsonResp(headers, { games: games.slice(0, 20) });
+    resp.headers.set('Cache-Control', 'max-age=600');
+    try { await caches.default.put(cacheKey, resp.clone()); } catch (e) {}
+    return resp;
+  } catch (e) {
+    return jsonResp(headers, { error: e.message }, 502);
   }
 }
 

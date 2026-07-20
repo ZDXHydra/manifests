@@ -495,6 +495,117 @@ header h1 {
   transform: translateY(-2px);
 }
 
+.trending-section {
+  margin-top: 2rem;
+}
+
+.trending-loading {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.spinner-sm {
+  width: 24px;
+  height: 24px;
+  margin: 0 auto;
+}
+
+.trending-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.trending-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+.tp-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+}
+
+.tp-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  border-color: var(--accent);
+  box-shadow: 0 4px 20px var(--glow);
+}
+
+.tp-img {
+  width: 100%;
+  aspect-ratio: 460 / 215;
+  object-fit: cover;
+  display: block;
+  background: #1a1a2e;
+}
+
+.tp-info {
+  padding: 0.5rem 0.6rem 0.6rem;
+}
+
+.tp-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 0.3rem;
+}
+
+.tp-price {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.tp-free {
+  font-size: 0.7rem;
+  color: #00b894;
+  font-weight: 600;
+}
+
+.tp-discount {
+  font-size: 0.7rem;
+  background: #00b894;
+  color: #fff;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  font-weight: 700;
+}
+
+.tp-original {
+  font-size: 0.65rem;
+  color: var(--text2);
+  text-decoration: line-through;
+}
+
+.tp-final {
+  font-size: 0.7rem;
+  color: var(--text);
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .trending-cards { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .trending-cards { grid-template-columns: repeat(2, 1fr); }
+  .tp-name { font-size: 0.7rem; }
+}
+
 footer {
   text-align: center;
   padding: 2rem 0 0;

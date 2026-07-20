@@ -31,6 +31,14 @@ function goHome() {
   els.input.value = '';
   currentData = null;
   els.input.focus();
+  var ts = document.getElementById('trendingSection');
+  var tl = document.getElementById('trendingLoading');
+  var tg = document.getElementById('trendingGrid');
+  if (tg.children.length === 0 && tl.classList.contains('hidden')) {
+    trendingLoaded = false;
+    tl.classList.remove('hidden');
+    loadTrending();
+  }
 }
 
 function formatBytes(b) {
@@ -285,3 +293,73 @@ els.input.addEventListener('keypress', function(e) {
   if (e.key === 'Enter') doFetch();
 });
 els.input.addEventListener('input', clearError);
+
+var trendingLoaded = false;
+
+function searchAppId(appId) {
+  els.input.value = appId;
+  doFetch();
+}
+
+async function loadTrending() {
+  if (trendingLoaded) return;
+  trendingLoaded = true;
+
+  var grid = document.getElementById('trendingGrid');
+  var loading = document.getElementById('trendingLoading');
+
+  try {
+    var res = await fetch(API + '/trending');
+    if (!res.ok) throw new Error('Error');
+    var data = await res.json();
+
+    loading.classList.add('hidden');
+
+    if (!data.games || data.games.length === 0) return;
+
+    var html = '<h3 class="trending-title">Juegos en Tendencia</h3><div class="trending-cards">';
+
+    data.games.forEach(function(g) {
+      var priceStr = '';
+      if (g.price === 0) {
+        priceStr = '<span class="tp-free">Free to Play</span>';
+      } else {
+        var dollars = (g.price / 100).toFixed(2);
+        if (g.discount > 0) {
+          var orig = (g.originalPrice / 100).toFixed(2);
+          priceStr = '<span class="tp-discount">-' + g.discount + '%</span>' +
+                     '<span class="tp-original">$' + orig + '</span>' +
+                     '<span class="tp-final">$' + dollars + '</span>';
+        } else {
+          priceStr = '<span class="tp-final">$' + dollars + '</span>';
+        }
+      }
+
+      html += '<div class="tp-card" onclick="searchAppId(' + g.id + ')">' +
+        '<img class="tp-img" src="' + g.image + '" alt="' + g.name.replace(/"/g, '&quot;') + '" loading="lazy">' +
+        '<div class="tp-info">' +
+          '<div class="tp-name">' + g.name + '</div>' +
+          '<div class="tp-price">' + priceStr + '</div>' +
+        '</div>' +
+      '</div>';
+    });
+
+    html += '</div>';
+    grid.innerHTML = html;
+  } catch (e) {
+    loading.classList.add('hidden');
+  }
+}
+
+var welcomeObserver = new MutationObserver(function(mutations) {
+  mutations.forEach(function(m) {
+    if (!els.welcome.classList.contains('hidden')) {
+      loadTrending();
+    }
+  });
+});
+welcomeObserver.observe(els.welcome, { attributes: true, attributeFilter: ['class'] });
+
+if (!els.welcome.classList.contains('hidden')) {
+  loadTrending();
+}
