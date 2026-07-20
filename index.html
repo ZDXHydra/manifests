@@ -86,7 +86,7 @@
     <script>
     (function() {
       var c = document.getElementById('stars');
-      for (var i = 0; i < 120; i++) {
+      for (var i = 0; i < 150; i++) {
         var s = document.createElement('div');
         s.className = 'star';
         s.style.left = Math.random() * 100 + '%';
@@ -95,6 +95,24 @@
         s.style.setProperty('--delay', (Math.random() * 4) + 's');
         if (Math.random() > 0.7) { s.style.width = '3px'; s.style.height = '3px'; }
         c.appendChild(s);
+      }
+      var colors = ['#fff', '#a0c4ff', '#ffd6a5', '#caffbf', '#b49cff'];
+      for (var j = 0; j < 6; j++) {
+        var m = document.createElement('div');
+        m.className = 'comet';
+        var angle = -25 - Math.random() * 20;
+        var dist = 900 + Math.random() * 600;
+        var cx = Math.cos(angle * Math.PI / 180) * dist;
+        var cy = Math.sin(angle * Math.PI / 180) * dist;
+        m.style.left = (10 + Math.random() * 80) + '%';
+        m.style.top = (-5 + Math.random() * 30) + '%';
+        m.style.setProperty('--cx', cx + 'px');
+        m.style.setProperty('--cy', cy + 'px');
+        m.style.setProperty('--dur', (2 + Math.random() * 3) + 's');
+        m.style.setProperty('--delay', (j * 3 + Math.random() * 4) + 's');
+        m.style.setProperty('--size', (80 + Math.random() * 150) + 'px');
+        m.style.setProperty('--color', colors[Math.floor(Math.random() * colors.length)]);
+        c.appendChild(m);
       }
     })();
     </script>
