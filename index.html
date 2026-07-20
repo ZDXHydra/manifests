@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div class="stars" id="stars"></div>
     <div class="container">
         <header>
             <a href="#" class="logo-link" onclick="goHome(); return false;">
@@ -82,6 +83,21 @@
         </footer>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+    (function() {
+      var c = document.getElementById('stars');
+      for (var i = 0; i < 120; i++) {
+        var s = document.createElement('div');
+        s.className = 'star';
+        s.style.left = Math.random() * 100 + '%';
+        s.style.top = Math.random() * 100 + '%';
+        s.style.setProperty('--dur', (2 + Math.random() * 4) + 's');
+        s.style.setProperty('--delay', (Math.random() * 4) + 's');
+        if (Math.random() > 0.7) { s.style.width = '3px'; s.style.height = '3px'; }
+        c.appendChild(s);
+      }
+    })();
+    </script>
     <script src="app.js"></script>
 </body>
 </html>

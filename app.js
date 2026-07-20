@@ -181,13 +181,6 @@ function renderFiles(files) {
     html += '</div>';
   }
 
-  if (zipFiles.length > 0) {
-    html += '<div class="file-section">';
-    html += '<h4 class="file-section-title">Paquetes ZIP <span class="file-badge">' + zipFiles.length + '</span></h4>';
-    zipFiles.forEach(function(f) { html += buildFileRow(f, 'zip'); });
-    html += '</div>';
-  }
-
   els.fileList.innerHTML = html;
 }
 
