@@ -114,7 +114,7 @@ async function doFetch() {
     hide(els.loading);
 
     if (!manifests.found) {
-      setError('No se encontraron manifests para el App ID ' + appId + '. Es posible que aun no esten disponibles para este juego.');
+      setError('No se encontraron manifests para el App ID ' + appId + '. Es posible que aún no estén disponibles para dicha App ID.');
       show(els.welcome);
       return;
     }
