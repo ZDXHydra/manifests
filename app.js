@@ -231,17 +231,30 @@ async function downloadAll() {
   els.downloadAllBtn.disabled = true;
 
   var toDownload = currentData.files.filter(function(f) { return f.isManifest || f.isLua || f.isVdf; });
+  var BATCH = 6;
+  var done = 0;
 
-  for (var i = 0; i < toDownload.length; i++) {
-    var f = toDownload[i];
-    try {
-      var res = await fetch(API + '/download?url=' + encodeURIComponent(f.rawUrl) + '&name=' + encodeURIComponent(f.name));
-      if (res.ok) {
-        var blob = await res.blob();
-        var subfolder = f.isManifest ? 'manifests' : f.isLua ? 'lua' : 'keys';
-        folder.folder(subfolder).file(f.name, blob);
+  for (var b = 0; b < toDownload.length; b += BATCH) {
+    var batch = toDownload.slice(b, b + BATCH);
+    var promises = batch.map(function(f) {
+      return fetch(API + '/download?url=' + encodeURIComponent(f.rawUrl) + '&name=' + encodeURIComponent(f.name))
+        .then(function(res) {
+          done++;
+          els.downloadAllBtn.textContent = 'Descargando... ' + done + '/' + toDownload.length;
+          if (!res.ok) return null;
+          return res.blob().then(function(blob) {
+            return { file: f, blob: blob };
+          });
+        })
+        .catch(function() { done++; return null; });
+    });
+    var results = await Promise.all(promises);
+    for (var r = 0; r < results.length; r++) {
+      if (results[r]) {
+        var subfolder = results[r].file.isManifest ? 'manifests' : results[r].file.isLua ? 'lua' : 'keys';
+        folder.folder(subfolder).file(results[r].file.name, results[r].blob);
       }
-    } catch (e) {}
+    }
   }
 
   folder.file('info.json', JSON.stringify({
