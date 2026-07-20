@@ -86,10 +86,12 @@ async function doFetch() {
   show(els.loading);
 
   try {
-    var [gameInfo, manifests] = await Promise.all([
+    var results = await Promise.all([
       fetchGameInfo(appId),
       fetchManifests(appId)
     ]);
+    var gameInfo = results[0];
+    var manifests = results[1];
 
     hide(els.loading);
 
@@ -120,11 +122,7 @@ async function doFetch() {
     }
 
     els.manifestCount.textContent = manifests.totalManifests + ' manifest(s)';
-
-    var sourceText = manifests.source;
-    if (manifests.allSources.length > 1) {
-      sourceText += ' (+' + (manifests.allSources.length - 1) + ' mas)';
-    }
+    var sourceText = manifests.allSources.length + ' fuente(s)';
     els.sourceInfo.textContent = sourceText;
 
     renderFiles(manifests.files);
@@ -140,7 +138,7 @@ function renderFiles(files) {
   var manifests = files.filter(function(f) { return f.isManifest; });
   var luaFiles = files.filter(function(f) { return f.isLua; });
   var vdfFiles = files.filter(function(f) { return f.isVdf; });
-  var otherFiles = files.filter(function(f) { return !f.isManifest && !f.isLua && !f.isVdf; });
+  var jsonFiles = files.filter(function(f) { return f.isJson; });
 
   var html = '';
 
@@ -165,10 +163,10 @@ function renderFiles(files) {
     html += '</div>';
   }
 
-  if (otherFiles.length > 0) {
+  if (jsonFiles.length > 0) {
     html += '<div class="file-section">';
-    html += '<h4 class="file-section-title">Otros Archivos <span class="file-badge">' + otherFiles.length + '</span></h4>';
-    otherFiles.forEach(function(f) { html += buildFileRow(f, 'other'); });
+    html += '<h4 class="file-section-title">JSON <span class="file-badge">' + jsonFiles.length + '</span></h4>';
+    jsonFiles.forEach(function(f) { html += buildFileRow(f, 'json'); });
     html += '</div>';
   }
 
@@ -178,6 +176,7 @@ function renderFiles(files) {
 function buildFileRow(f, type) {
   var icon = type === 'manifest' ? '\uD83D\uDCE6' : type === 'lua' ? '\uD83D\uDCDC' : type === 'vdf' ? '\uD83D\uDD11' : '\uD83D\uDCC4';
   var sizeStr = f.size ? formatBytes(f.size) : '';
+  var sourceStr = f.source ? ' · ' + f.source : '';
   var escapedUrl = f.rawUrl.replace(/'/g, "\\'");
   var escapedName = f.name.replace(/'/g, "\\'");
 
@@ -186,7 +185,7 @@ function buildFileRow(f, type) {
       '<span class="file-icon">' + icon + '</span>' +
       '<div class="file-details">' +
         '<span class="file-name">' + f.name + '</span>' +
-        '<span class="file-meta">' + sizeStr + '</span>' +
+        '<span class="file-meta">' + sizeStr + sourceStr + '</span>' +
       '</div>' +
     '</div>' +
     '<div class="file-actions">' +
@@ -219,16 +218,48 @@ async function downloadAll() {
       var res = await fetch(API + '/download?url=' + encodeURIComponent(f.rawUrl) + '&name=' + encodeURIComponent(f.name));
       if (res.ok) {
         var blob = await res.blob();
-        folder.file(f.name, blob);
+        var subfolder = f.isManifest ? 'manifests' : f.isLua ? 'lua' : 'keys';
+        folder.folder(subfolder).file(f.name, blob);
       }
     } catch (e) {}
   }
 
   folder.file('info.json', JSON.stringify({
     appId: currentData.appId,
-    source: currentData.source,
+    sources: currentData.allSources,
+    totalManifests: currentData.totalManifests,
     timestamp: new Date().toISOString()
   }, null, 2));
+
+  folder.file('README.txt', [
+    'Steam Manifests - App ID: ' + currentData.appId,
+    '',
+    'Sources: ' + currentData.allSources.map(function(s) { return s.name; }).join(', '),
+    'Total manifests: ' + currentData.totalManifests,
+    'Date: ' + new Date().toISOString(),
+    '',
+    'How to use:',
+    '1. Copy the manifest files to your Steam depotcache folder',
+    '2. Use SteamTools to import them',
+    '',
+    'More info: https://steamdb.info/app/' + currentData.appId,
+    ''
+  ].join('\n'));
+
+  folder.file('LEEME.txt', [
+    'Manifests de Steam - App ID: ' + currentData.appId,
+    '',
+    'Fuentes: ' + currentData.allSources.map(function(s) { return s.name; }).join(', '),
+    'Total de manifests: ' + currentData.totalManifests,
+    'Fecha: ' + new Date().toISOString(),
+    '',
+    'Como usar:',
+    '1. Copia los archivos manifest a tu carpeta depotcache de Steam',
+    '2. Usa SteamTools para importarlos',
+    '',
+    'Mas info: https://steamdb.info/app/' + currentData.appId,
+    ''
+  ].join('\n'));
 
   var content = await zip.generateAsync({ type: 'blob' });
   downloadBlob(folderName + '.zip', content);

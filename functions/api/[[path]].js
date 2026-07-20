@@ -27,7 +27,6 @@ export async function onRequest(context) {
   if (path === '/api/steam') return handleSteamApi(url, corsHeaders);
   if (path === '/api/manifests') return handleManifests(url, corsHeaders);
   if (path === '/api/download') return handleDownload(url, corsHeaders);
-  if (path === '/api/search') return handleSearch(url, corsHeaders);
 
   return jsonResp(corsHeaders, { error: 'Not found' }, 404);
 }
@@ -54,22 +53,6 @@ async function handleSteamApi(url, headers) {
   }
 }
 
-async function handleSearch(url, headers) {
-  var query = url.searchParams.get('q');
-  if (!query) return jsonResp(headers, { error: 'Query required' }, 400);
-  try {
-    var res = await fetch('https://store.steampowered.com/api/storesearch/?term=' + encodeURIComponent(query) + '&l=english&cc=US', {
-      headers: { 'User-Agent': 'SteamMF/2.0' }
-    });
-    if (!res.ok) return jsonResp(headers, { error: 'Search error' }, 502);
-    var data = await res.json();
-    var items = (data.items || []).map(function(i) { return { id: i.id, name: i.name, type: i.type }; });
-    return new Response(JSON.stringify({ results: items }), { headers: { ...headers, 'Content-Type': 'application/json' } });
-  } catch (e) {
-    return jsonResp(headers, { error: e.message }, 502);
-  }
-}
-
 async function handleManifests(url, headers) {
   var appId = url.searchParams.get('appid');
   if (!appId || isNaN(appId)) return jsonResp(headers, { error: 'Invalid' }, 400);
@@ -80,46 +63,56 @@ async function handleManifests(url, headers) {
     if (cached) return cached;
   } catch (e) {}
 
-  var allSources = [];
-  var bestResult = null;
+  var mergedFiles = [];
+  var sourcesFound = [];
+  var seenPaths = {};
 
   var ghPromises = GH_REPOS.map(function(source) {
     return checkGitHubRepo(appId, source);
   });
 
-  var steamtoolsPromise = checkSteamtoolsGames(appId);
-
-  var ghResults = await Promise.all(ghPromises);
+  var ghResults = await Promise.allSettled(ghPromises);
 
   for (var i = 0; i < ghResults.length; i++) {
-    var r = ghResults[i];
-    if (r) {
-      allSources.push(r);
-      if (!bestResult || r.manifestCount > bestResult.manifestCount) {
-        bestResult = r;
+    var r = ghResults[i].value || null;
+    if (r && r.files.length > 0) {
+      sourcesFound.push({ name: r.source, files: r.totalCount, manifests: r.manifestCount });
+      for (var j = 0; j < r.files.length; j++) {
+        var f = r.files[j];
+        var key = f.name + '_' + (f.size || 0);
+        if (!seenPaths[key]) {
+          seenPaths[key] = true;
+          f.source = r.source;
+          mergedFiles.push(f);
+        }
       }
     }
   }
 
-  if (!bestResult) {
-    var stResult = await steamtoolsPromise;
-    if (stResult) {
-      allSources.push(stResult);
-      bestResult = stResult;
+  var stResult = await checkSteamtoolsGames(appId);
+  if (stResult && stResult.files.length > 0) {
+    sourcesFound.push({ name: stResult.source, files: stResult.totalCount, manifests: stResult.manifestCount });
+    for (var k = 0; k < stResult.files.length; k++) {
+      var sf = stResult.files[k];
+      var skey = sf.name + '_' + (sf.size || 0);
+      if (!seenPaths[skey]) {
+        seenPaths[skey] = true;
+        sf.source = stResult.source;
+        mergedFiles.push(sf);
+      }
     }
-  } else {
-    var stResult2 = await steamtoolsPromise;
-    if (stResult2) allSources.push(stResult2);
   }
+
+  var manifests = mergedFiles.filter(function(f) { return f.isManifest; });
 
   var response = {
     appId: parseInt(appId),
-    found: bestResult !== null,
-    source: bestResult ? bestResult.source : null,
-    allSources: allSources.map(function(s) { return { name: s.source, files: s.totalCount, manifests: s.manifestCount }; }),
-    files: bestResult ? bestResult.files : [],
-    manifests: bestResult ? bestResult.files.filter(function(f) { return f.isManifest; }) : [],
-    totalManifests: bestResult ? bestResult.manifestCount : 0
+    found: mergedFiles.length > 0,
+    source: sourcesFound.length > 0 ? sourcesFound[0].name : null,
+    allSources: sourcesFound,
+    files: mergedFiles,
+    totalManifests: manifests.length,
+    totalFiles: mergedFiles.length
   };
 
   var resp = new Response(JSON.stringify(response), {
@@ -152,8 +145,9 @@ async function checkGitHubRepo(appId, source) {
     var files = (tree.tree || [])
       .filter(function(f) { return f.type === 'blob'; })
       .map(function(f) {
-        var ext = f.path.split('.').pop().toLowerCase();
-        var name = f.path.split('/').pop();
+        var parts = f.path.split('/');
+        var name = parts[parts.length - 1];
+        var ext = name.split('.').pop().toLowerCase();
         return {
           path: f.path,
           name: name,
@@ -188,30 +182,15 @@ async function checkSteamtoolsGames(appId) {
       body: JSON.stringify({ appId: appId, branch: 'public' })
     });
     if (!res.ok) return null;
-
     var data = await res.json();
     if (data.code !== 0 || !data.data) return null;
-
     var d = data.data;
     var files = [];
-    if (d.downloadUrl) {
-      files.push({ name: appId + '_manifest.zip', rawUrl: d.downloadUrl, isManifest: true, ext: 'zip', size: 0 });
-    }
-    if (d.luaUrl) {
-      files.push({ name: appId + '.lua', rawUrl: d.luaUrl, isLua: true, ext: 'lua', size: 0 });
-    }
-    if (d.keyVdfUrl) {
-      files.push({ name: 'key.vdf', rawUrl: d.keyVdfUrl, isVdf: true, ext: 'vdf', size: 0 });
-    }
-
+    if (d.downloadUrl) files.push({ name: appId + '_manifest.zip', rawUrl: d.downloadUrl, isManifest: true, ext: 'zip', size: 0 });
+    if (d.luaUrl) files.push({ name: appId + '.lua', rawUrl: d.luaUrl, isLua: true, ext: 'lua', size: 0 });
+    if (d.keyVdfUrl) files.push({ name: 'key.vdf', rawUrl: d.keyVdfUrl, isVdf: true, ext: 'vdf', size: 0 });
     if (files.length === 0) return null;
-
-    return {
-      source: 'steamtools.games',
-      files: files,
-      manifestCount: files.filter(function(f) { return f.isManifest; }).length,
-      totalCount: files.length
-    };
+    return { source: 'steamtools.games', files: files, manifestCount: files.filter(function(f) { return f.isManifest; }).length, totalCount: files.length };
   } catch (e) {
     return null;
   }
@@ -220,23 +199,15 @@ async function checkSteamtoolsGames(appId) {
 async function handleDownload(url, headers) {
   var fileUrl = url.searchParams.get('url');
   var filename = url.searchParams.get('name') || 'manifest';
-
   if (!fileUrl) return jsonResp(headers, { error: 'URL required' }, 400);
-
   try {
     var decodedUrl = decodeURIComponent(fileUrl);
-    var res = await fetch(decodedUrl, {
-      headers: { 'User-Agent': 'SteamMF/2.0' },
-      redirect: 'follow'
-    });
-
+    var res = await fetch(decodedUrl, { headers: { 'User-Agent': 'SteamMF/2.0' }, redirect: 'follow' });
     if (!res.ok) return jsonResp(headers, { error: 'Failed: ' + res.status }, res.status);
-
     var ct = res.headers.get('content-type') || 'application/octet-stream';
     var h = new Headers(headers);
     h.set('Content-Type', ct);
     h.set('Content-Disposition', 'attachment; filename="' + filename + '"');
-
     return new Response(res.body, { status: 200, headers: h });
   } catch (e) {
     return jsonResp(headers, { error: e.message }, 502);
