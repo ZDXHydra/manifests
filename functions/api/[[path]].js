@@ -215,14 +215,19 @@ async function handleTrending(url, headers) {
     var seen = {};
 
     var categories = ['top_sellers', 'new_releases', 'specials'];
+    var exclude = [/^steam deck/i, /^steam machine/i, /^steam controller/i, /^steam link/i, /^steamVR/i];
     for (var i = 0; i < categories.length; i++) {
       var cat = data[categories[i]];
       if (!cat || !cat.items) continue;
       for (var j = 0; j < cat.items.length; j++) {
         var item = cat.items[j];
         if (seen[item.id]) continue;
-        if (item.type !== 0) continue;
         if (!item.windows_available) continue;
+        var skip = false;
+        for (var k = 0; k < exclude.length; k++) {
+          if (exclude[k].test(item.name)) { skip = true; break; }
+        }
+        if (skip) continue;
         seen[item.id] = true;
         games.push({
           id: item.id,
