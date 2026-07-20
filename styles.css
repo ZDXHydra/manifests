@@ -31,14 +31,6 @@ body {
   50% { opacity: 1; }
 }
 
-@keyframes drift {
-  0% { transform: translateY(0) translateX(0); }
-  25% { transform: translateY(-8px) translateX(4px); }
-  50% { transform: translateY(-3px) translateX(-3px); }
-  75% { transform: translateY(-10px) translateX(2px); }
-  100% { transform: translateY(0) translateX(0); }
-}
-
 @keyframes pulse-glow {
   0%, 100% { box-shadow: 0 0 15px var(--glow), 0 0 30px rgba(124, 92, 255, 0.1); }
   50% { box-shadow: 0 0 25px var(--glow), 0 0 50px rgba(124, 92, 255, 0.2); }
@@ -64,26 +56,56 @@ body {
   to { transform: rotate(360deg); }
 }
 
-@keyframes comet {
-  0% { transform: translateX(0) translateY(0); opacity: 0; }
-  5% { opacity: 1; }
-  70% { opacity: 1; }
-  100% { transform: translateX(var(--cx)) translateY(var(--cy)); opacity: 0; }
+@keyframes comet-fly {
+  0% { transform: rotate(var(--angle)) translateX(0); opacity: 0; }
+  3% { opacity: var(--peak-opacity, 0.9); }
+  60% { opacity: var(--peak-opacity, 0.9); }
+  100% { transform: rotate(var(--angle)) translateX(calc(-1 * var(--travel))); opacity: 0; }
 }
 
 .comet {
   position: fixed;
-  width: var(--size);
-  height: 1px;
-  background: linear-gradient(90deg, rgba(255,255,255,0), #fff 20%, var(--color) 100%);
-  border-radius: 1px;
   pointer-events: none;
   z-index: 0;
-  transform-origin: 0 0;
-  animation: comet var(--dur) linear infinite;
-  animation-delay: var(--delay);
   opacity: 0;
-  filter: drop-shadow(0 0 3px var(--color));
+  transform: rotate(var(--angle));
+  animation: comet-fly var(--dur) linear infinite;
+  animation-delay: var(--delay);
+}
+
+.comet-head {
+  position: absolute;
+  width: var(--head);
+  height: var(--head);
+  background: radial-gradient(circle, #fff 0%, var(--color) 40%, transparent 70%);
+  border-radius: 50%;
+  top: 0;
+  right: 0;
+  filter: blur(0.5px);
+  box-shadow: 0 0 calc(var(--head) * 1.5) var(--color), 0 0 calc(var(--head) * 3) var(--glow-color);
+}
+
+.comet-tail {
+  position: absolute;
+  top: 50%;
+  right: calc(var(--head) / 2);
+  transform: translateY(-50%);
+  height: 1px;
+  width: var(--tail);
+  background: linear-gradient(90deg, transparent 0%, var(--glow-color) 10%, var(--color) 40%, #fff 100%);
+  border-radius: 0 1px 1px 0;
+  filter: blur(0.3px);
+}
+
+.comet-tail::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 30%, var(--glow-color) 100%);
+  filter: blur(2px);
 }
 
 body::before {
