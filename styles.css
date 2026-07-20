@@ -58,8 +58,8 @@ body {
 
 @keyframes comet-fly {
   0% { transform: rotate(var(--angle)) translateX(0); opacity: 0; }
-  3% { opacity: var(--peak-opacity, 0.9); }
-  60% { opacity: var(--peak-opacity, 0.9); }
+  5% { opacity: var(--peak-opacity, 0.9); }
+  55% { opacity: var(--peak-opacity, 0.9); }
   100% { transform: rotate(var(--angle)) translateX(calc(-1 * var(--travel))); opacity: 0; }
 }
 
@@ -69,7 +69,7 @@ body {
   z-index: 0;
   opacity: 0;
   transform: rotate(var(--angle));
-  animation: comet-fly var(--dur) linear infinite;
+  animation: comet-fly var(--dur) linear forwards;
   animation-delay: var(--delay);
 }
 
