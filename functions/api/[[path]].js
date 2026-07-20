@@ -221,8 +221,9 @@ async function handleTrending(url, headers) {
       for (var j = 0; j < cat.items.length; j++) {
         var item = cat.items[j];
         if (seen[item.id]) continue;
-        seen[item.id] = true;
+        if (item.type !== 0) continue;
         if (!item.windows_available) continue;
+        seen[item.id] = true;
         games.push({
           id: item.id,
           name: item.name,
