@@ -148,7 +148,14 @@ body::before {
   padding: 2rem 1.5rem;
 }
 
-header { margin-bottom: 2rem; animation: float-in 0.6s ease-out; }
+header {
+  margin-bottom: 2rem;
+  animation: float-in 0.6s ease-out;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
 
 .logo-link {
   display: inline-flex;
@@ -164,6 +171,87 @@ header { margin-bottom: 2rem; animation: float-in 0.6s ease-out; }
 .logo-icon {
   flex-shrink: 0;
   filter: drop-shadow(0 0 8px var(--glow));
+}
+
+.lang-selector {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.lang-btn {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.4rem 0.7rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.lang-btn:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 10px var(--glow);
+}
+
+.lang-arrow {
+  font-size: 0.6rem;
+  color: var(--text2);
+}
+
+.lang-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.4rem 0;
+  min-width: 200px;
+  max-height: 350px;
+  overflow-y: auto;
+  z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  animation: slide-in 0.2s ease-out;
+}
+
+.lang-menu::-webkit-scrollbar { width: 6px; }
+.lang-menu::-webkit-scrollbar-track { background: transparent; }
+.lang-menu::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.lang-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.8rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--text);
+  transition: background 0.15s;
+}
+
+.lang-item:hover {
+  background: rgba(108, 92, 231, 0.15);
+}
+
+.lang-item-active {
+  background: rgba(108, 92, 231, 0.2);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.lang-item-flag {
+  font-size: 1rem;
+  width: 1.4rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.lang-item-name {
+  white-space: nowrap;
 }
 
 header h1 {

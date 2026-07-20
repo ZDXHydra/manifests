@@ -376,3 +376,53 @@ welcomeObserver.observe(els.welcome, { attributes: true, attributeFilter: ['clas
 if (!els.welcome.classList.contains('hidden')) {
   loadTrending();
 }
+
+var currentLang = localStorage.getItem('smf-lang') || 'es';
+
+function setLang(lang) {
+  if (!LANGUAGES[lang]) return;
+  currentLang = lang;
+  localStorage.setItem('smf-lang', lang);
+  var t = LANGUAGES[lang].t;
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n');
+    if (t[key]) el.textContent = t[key];
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n-placeholder');
+    if (t[key]) el.placeholder = t[key];
+  });
+  document.getElementById('langFlag').textContent = LANGUAGES[lang].flag;
+  document.title = 'Steam Manifest Finder';
+}
+
+function buildLangMenu() {
+  var menu = document.getElementById('langMenu');
+  var keys = Object.keys(LANGUAGES);
+  var html = '';
+  for (var i = 0; i < keys.length; i++) {
+    var k = keys[i];
+    var active = k === currentLang ? ' lang-item-active' : '';
+    html += '<div class="lang-item' + active + '" onclick="setLang(\'' + k + '\');toggleLangMenu()">' +
+      '<span class="lang-item-flag">' + LANGUAGES[k].flag + '</span>' +
+      '<span class="lang-item-name">' + LANGUAGES[k].name + '</span>' +
+    '</div>';
+  }
+  menu.innerHTML = html;
+}
+
+function toggleLangMenu() {
+  var menu = document.getElementById('langMenu');
+  var isOpen = !menu.classList.contains('hidden');
+  if (!isOpen) buildLangMenu();
+  menu.classList.toggle('hidden');
+}
+
+document.addEventListener('click', function(e) {
+  var sel = document.getElementById('langSelector');
+  if (!sel.contains(e.target)) {
+    document.getElementById('langMenu').classList.add('hidden');
+  }
+});
+
+setLang(currentLang);

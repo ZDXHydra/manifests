@@ -23,15 +23,19 @@
                 </svg>
                 <div>
                     <h1>Steam Manifest Finder</h1>
-                    <p class="subtitle">Busca y descarga archivos .manifest de cualquier juego de Steam</p>
+                    <p class="subtitle" data-i18n="subtitle">Busca y descarga archivos .manifest de cualquier juego de Steam</p>
                 </div>
             </a>
+            <div class="lang-selector" id="langSelector">
+                <button class="lang-btn" id="langBtn" onclick="toggleLangMenu()"><span id="langFlag">🇪🇸</span> <span class="lang-arrow">▾</span></button>
+                <div class="lang-menu hidden" id="langMenu"></div>
+            </div>
         </header>
 
         <div class="search-box">
             <div class="search-row">
-                <input type="text" id="appIdInput" placeholder="Steam App ID (ej: 730)" autocomplete="off" inputmode="numeric">
-                <button id="fetchBtn">Fetch</button>
+                <input type="text" id="appIdInput" data-i18n-placeholder="search_placeholder" placeholder="Steam App ID (ej: 730)" autocomplete="off" inputmode="numeric">
+                <button id="fetchBtn" data-i18n="fetch_btn">Buscar</button>
             </div>
         </div>
 
@@ -39,7 +43,7 @@
 
         <div id="loading" class="loading hidden">
             <div class="spinner"></div>
-            <p>Buscando manifests en ManifestHub...</p>
+            <p data-i18n="loading">Buscando manifests...</p>
         </div>
 
         <div id="results" class="results hidden">
@@ -56,7 +60,7 @@
             </div>
 
             <div class="actions-bar">
-                <button id="downloadAllBtn" class="btn-primary" onclick="downloadAll()">Descargar Todo (.zip)</button>
+                <button id="downloadAllBtn" class="btn-primary" onclick="downloadAll()" data-i18n="download_all">Descargar Todo (.zip)</button>
             </div>
 
             <div id="fileList" class="file-list"></div>
@@ -64,11 +68,11 @@
 
         <div id="welcome" class="welcome">
             <div class="welcome-icon">&#128230;</div>
-            <h2>Steam Manifest Finder</h2>
-            <p>Ingresa un App ID para buscar archivos .manifest en ManifestHub.</p>
-            <p class="welcome-sub">Soporta mas de 62,000 juegos y DLCs.</p>
+            <h2 data-i18n="welcome_title">Steam Manifest Finder</h2>
+            <p data-i18n="welcome_desc">Ingresa un App ID para buscar archivos .manifest en ManifestHub.</p>
+            <p class="welcome-sub" data-i18n="welcome_sub">Soporta mas de 62,000 juegos y DLCs.</p>
             <div class="popular">
-                <span class="popular-label">Populares:</span>
+                <span class="popular-label" data-i18n="popular_label">Populares:</span>
                 <button class="popular-btn" onclick="document.getElementById('appIdInput').value='730';document.getElementById('fetchBtn').click()">CS2</button>
                 <button class="popular-btn" onclick="document.getElementById('appIdInput').value='570';document.getElementById('fetchBtn').click()">Dota 2</button>
                 <button class="popular-btn" onclick="document.getElementById('appIdInput').value='440';document.getElementById('fetchBtn').click()">TF2</button>
@@ -87,10 +91,11 @@
         </div>
 
         <footer>
-            <p>Manifest files sourced from ManifestHub (GitHub). No alojamos archivos directamente.</p>
+            <p data-i18n="footer">Manifest files sourced from ManifestHub (GitHub). No alojamos archivos directamente.</p>
         </footer>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="languages.js"></script>
     <script>
     (function() {
       var c = document.getElementById('stars');
